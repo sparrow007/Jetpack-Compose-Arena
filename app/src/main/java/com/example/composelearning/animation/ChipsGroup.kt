@@ -29,30 +29,43 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun Chips(chipText: String, onClick: (isVisible: Boolean) -> Unit) {
-    Row (
-        modifier = Modifier
-            .wrapContentSize()
-            .border(
-                width = 1.dp,
-                brush = Brush.horizontalGradient(colors = listOf(Color.Green, Color.Blue)),
-                shape = RoundedCornerShape(20.dp)
-            )
-            .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp)
-            .clickable { onClick(false) }
-    ) {
-        Image(imageVector = Icons.Filled.Close, contentDescription = "closing")
-        Spacer(modifier = Modifier.width(10.dp))
-        Text(text = chipText)
+fun Chips(chipText: String) {
+    var isVisible by remember { mutableStateOf(true) }
+  //  isVisible = visible
+    AnimatedVisibility(
+        visible = isVisible,
+
+        ) {
+        Row (
+            modifier = Modifier
+                .wrapContentSize()
+                .border(
+                    width = 1.dp,
+                    brush = Brush.horizontalGradient(colors = listOf(Color.Green, Color.Blue)),
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp)
+                .clickable { isVisible = !isVisible }
+        ) {
+            Image(imageVector = Icons.Filled.Close, contentDescription = "closing")
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(text = chipText)
+        }
     }
 }
 
 @Composable
 fun AnimateOneChip() {
     var isVisible by remember { mutableStateOf(true) }
-    AnimatedVisibility(visible = isVisible) {
-        Chips(chipText = "Hollywood") {
-            isVisible = it
+
+    Row {
+        Image(imageVector = Icons.Filled.Close, contentDescription = "close button", modifier = Modifier.clickable {
+            isVisible = !isVisible
+        })
+
+        Spacer(modifier = Modifier.width(10.dp))
+        AnimatedVisibility(visible = isVisible) {
+            ListOfChips()
         }
     }
 }
@@ -63,7 +76,7 @@ fun ListOfChips() {
     LazyRow {
         items(listOfChips) {
             Spacer(modifier = Modifier.width(10.dp))
-            Chips(chipText = it) {}
+            Chips(chipText = it)
         }
     }
 }
