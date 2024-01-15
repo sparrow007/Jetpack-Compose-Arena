@@ -1,7 +1,9 @@
 package com.example.composelearning.animation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -15,6 +17,10 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -23,7 +29,7 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun Chips(chipText: String) {
+fun Chips(chipText: String, onClick: (isVisible: Boolean) -> Unit) {
     Row (
         modifier = Modifier
             .wrapContentSize()
@@ -33,10 +39,21 @@ fun Chips(chipText: String) {
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(start = 10.dp, end = 10.dp, top = 5.dp, bottom = 5.dp)
+            .clickable { onClick(false) }
     ) {
         Image(imageVector = Icons.Filled.Close, contentDescription = "closing")
         Spacer(modifier = Modifier.width(10.dp))
         Text(text = chipText)
+    }
+}
+
+@Composable
+fun AnimateOneChip() {
+    var isVisible by remember { mutableStateOf(true) }
+    AnimatedVisibility(visible = isVisible) {
+        Chips(chipText = "Hollywood") {
+            isVisible = it
+        }
     }
 }
 
@@ -46,7 +63,7 @@ fun ListOfChips() {
     LazyRow {
         items(listOfChips) {
             Spacer(modifier = Modifier.width(10.dp))
-            Chips(chipText = it)
+            Chips(chipText = it) {}
         }
     }
 }
@@ -55,6 +72,6 @@ fun ListOfChips() {
 @Composable
 fun ShowPreviewChips() {
     MaterialTheme {
-        ListOfChips()
+        AnimateOneChip()
     }
 }
