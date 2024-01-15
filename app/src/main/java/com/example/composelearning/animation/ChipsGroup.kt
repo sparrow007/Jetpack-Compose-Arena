@@ -2,12 +2,18 @@ package com.example.composelearning.animation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -81,10 +87,59 @@ fun ListOfChips() {
     }
 }
 
+@Composable
+fun SelectableChip(chipsText: List<String>) {
+    var selectionPosition by remember { mutableStateOf(-1) }
+    var isSelected by remember { mutableStateOf(true) }
+    Row(
+        modifier = Modifier
+            .height(IntrinsicSize.Min)
+            .border(
+                width = 1.dp,
+                brush = Brush.horizontalGradient(colors = listOf(Color.Green, Color.Blue)),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(10.dp)
+
+    ) {
+        chipsText.forEachIndexed { index, s ->
+            AnimatedVisibility(visible = isSelected ||  selectionPosition == index) {
+                Text(
+                    text = s,
+                    color = if (isSelected) Color.Black else Color.Blue,
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp)
+                        .clickable {
+                            isSelected = !isSelected
+                            selectionPosition = index
+                        }
+                )
+            }
+            AnimatedVisibility(visible = isSelected || selectionPosition == index) {
+                if (index < chipsText.size - 1 && isSelected) {
+                    Box(
+                        modifier = Modifier
+                            .width(2.dp)
+                            .fillMaxHeight()
+                            .background(
+                                color = Color.Green,
+                                shape = RoundedCornerShape(1.dp)
+                            )
+                            .padding(10.dp)
+                    )
+                }
+            }
+
+        }
+    }
+}
+
 @Preview(showSystemUi = true)
 @Composable
 fun ShowPreviewChips() {
     MaterialTheme {
-        AnimateOneChip()
+        val listOfChips = listOf("Hollywood", "Bollywood", "Action", "Dance")
+
+        SelectableChip(chipsText = listOfChips)
     }
 }
