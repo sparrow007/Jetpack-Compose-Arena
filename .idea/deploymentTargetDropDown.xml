@@ -2,6 +2,9 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="ShowBOMB">
+        <State />
+      </entry>
       <entry key="ShowPreviewChips">
         <State />
       </entry>
