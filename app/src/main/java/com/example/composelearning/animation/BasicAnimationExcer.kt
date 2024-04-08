@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -27,7 +28,7 @@ fun MoveViewByOffset() {
     var shouldMoveBox by remember { mutableStateOf(false) }
 
     val offset = animateIntOffsetAsState(
-        targetValue = if (shouldMoveBox) IntOffset(150, 50) else IntOffset.Zero, label = ""
+        targetValue = if (shouldMoveBox) IntOffset(150, 150) else IntOffset.Zero, label = ""
     )
 
     Box (modifier = Modifier.fillMaxSize()){
@@ -53,7 +54,7 @@ fun MoveLayoutView() {
     var shouldMoveBox by remember { mutableStateOf(false) }
 
     val offset = animateIntOffsetAsState(
-        targetValue = if (shouldMoveBox) IntOffset(150, 50) else IntOffset.Zero, label = ""
+        targetValue = if (shouldMoveBox) IntOffset(150, 150) else IntOffset.Zero, label = ""
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -61,8 +62,11 @@ fun MoveLayoutView() {
             Spacer(modifier = Modifier.size(10.dp))
             Box(
                 modifier = Modifier
-                    .offset {
-                        offset.value
+                    .layout {measurable, contraints ->
+                        val placeable = measurable.measure(contraints)
+                        layout(placeable.width + offset.value.x, placeable.height + offset.value.y,){
+                            placeable.place(offset.value)
+                        }
                     }
                     .background(Color.Green)
                     .size(100.dp)
