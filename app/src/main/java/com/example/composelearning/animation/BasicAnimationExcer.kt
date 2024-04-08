@@ -144,6 +144,9 @@ fun AnimateShadow() {
 
 }
 
+//Will start the test animation for compose
+
+
 
 @Preview(showSystemUi = true)
 @Composable
