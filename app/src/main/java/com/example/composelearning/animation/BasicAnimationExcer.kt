@@ -1,8 +1,11 @@
 package com.example.composelearning.animation
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,8 +18,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -59,22 +65,6 @@ fun MoveLayoutView() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column {
-            Spacer(modifier = Modifier.size(10.dp))
-            Box(
-                modifier = Modifier
-                    .layout {measurable, contraints ->
-                        val placeable = measurable.measure(contraints)
-                        layout(placeable.width + offset.value.x, placeable.height + offset.value.y,){
-                            placeable.place(offset.value)
-                        }
-                    }
-                    .background(Color.Green)
-                    .size(100.dp)
-                    .clickable {
-                        shouldMoveBox = !shouldMoveBox
-                    }
-
-            )
 
             Spacer(modifier = Modifier.size(10.dp))
 
@@ -87,9 +77,29 @@ fun MoveLayoutView() {
                     }
 
             )
-
             Spacer(modifier = Modifier.size(10.dp))
 
+            Box(
+                modifier = Modifier
+                    .layout { measurable, contraints ->
+                        val placeable = measurable.measure(contraints)
+                        layout(
+                            placeable.width + offset.value.x,
+                            placeable.height + offset.value.y,
+                        ) {
+                            placeable.place(offset.value)
+                        }
+                    }
+                    .background(Color.Green)
+                    .size(100.dp)
+                    .clickable {
+                        shouldMoveBox = !shouldMoveBox
+                    }
+
+            )
+
+
+            Spacer(modifier = Modifier.size(10.dp))
 
             Box(
                 modifier = Modifier
@@ -106,12 +116,46 @@ fun MoveLayoutView() {
 
 }
 
+@Composable
+fun AnimateShadow() {
+
+    val mutableSource = remember {
+        MutableInteractionSource()
+    }
+
+    val pressedState = mutableSource.collectIsPressedAsState()
+
+    val animateShadowState = animateDpAsState(
+        targetValue = if (pressedState.value) 150.dp else 8.dp,
+        label = "animating shadow")
+
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .graphicsLayer {
+                shadowElevation = animateShadowState.value.toPx()
+            }
+            .background(Color.Green)
+            .clickable(interactionSource = mutableSource, indication = null) {
+                // do nothing
+            }
+
+    )
+
+}
+
 
 @Preview(showSystemUi = true)
 @Composable
 private fun ShowAnimationPreview() {
     MaterialTheme {
-        MoveLayoutView()
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            AnimateShadow()
+        }
+
     }
 }
 
