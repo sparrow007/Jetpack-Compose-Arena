@@ -1,7 +1,12 @@
 package com.example.composelearning.animation
 
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,6 +30,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -145,6 +153,27 @@ fun AnimateShadow() {
 }
 
 //Will start the test animation for compose
+@Composable
+fun TextScalingInifinite() {
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 3f,
+        animationSpec = infiniteRepeatable(tween(1000), repeatMode = RepeatMode.Reverse),
+        label = "Text Scaling Animation"
+    )
+
+    Box (modifier = Modifier.fillMaxSize()) {
+        Text(text = "Hello Compose",
+            modifier = Modifier.graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }.align(Alignment.Center),
+            style = TextStyle(textMotion = TextMotion.Animated)
+        )
+    }
+
+}
 
 
 
@@ -156,7 +185,7 @@ private fun ShowAnimationPreview() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            AnimateShadow()
+            TextScalingInifinite()
         }
 
     }
