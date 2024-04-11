@@ -1,5 +1,6 @@
 package com.example.composelearning.animation
 
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
@@ -165,14 +166,30 @@ fun TextScalingInifinite() {
 
     Box (modifier = Modifier.fillMaxSize()) {
         Text(text = "Hello Compose",
-            modifier = Modifier.graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }.align(Alignment.Center),
+            modifier = Modifier
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
+                .align(Alignment.Center),
             style = TextStyle(textMotion = TextMotion.Animated)
         )
     }
+}
 
+@Composable
+fun AnimatingTextColor() {
+    val infiniteTransition = rememberInfiniteTransition(label = "Infinite Text Color Animation")
+    val animatingColor = infiniteTransition.animateColor(
+        initialValue = Color.Green,
+        targetValue = Color.Blue,
+        animationSpec = infiniteRepeatable(tween(1000), repeatMode = RepeatMode.Reverse),
+        label = "Animating colors"
+    )
+    BasicText(text = "Text Color",
+        color = {
+            animatingColor.value
+        })
 }
 
 
@@ -185,7 +202,7 @@ private fun ShowAnimationPreview() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            TextScalingInifinite()
+            AnimatingTextColor()
         }
 
     }
