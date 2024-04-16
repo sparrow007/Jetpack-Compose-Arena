@@ -15,7 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun BasicDrawerDesign() {
-    var initialTranslationX = 100f
+    var initialTranslationX = 300f
+    var drawerWidth = 300f
     val draggableState = rememberDraggableState {dragAmount ->
         // Handle drag amount, but for now we are not implementing it yet
         print("when the draggable state is on delta")
@@ -24,8 +25,17 @@ fun BasicDrawerDesign() {
     Surface(modifier = Modifier
         .fillMaxSize()
         .draggable(draggableState, Orientation.Horizontal, onDragStopped = { velocity: Float ->
-            Log.e("Fling Animation", "Print the velocity = $velocity")
             val targetOffsetX = decay.calculateTargetValue(initialValue = initialTranslationX, initialVelocity = velocity)
+
+            val actualTargetX = if (targetOffsetX > drawerWidth * 0.5) {
+                drawerWidth
+            } else {
+                0f
+            }
+            val targetDifference = (actualTargetX - targetOffsetX)
+
+            Log.e("Fling Animation", "Print the targetOffest = $targetOffsetX, and velocity = $velocity, and difference = $targetDifference")
+
         })
     ) {
 
