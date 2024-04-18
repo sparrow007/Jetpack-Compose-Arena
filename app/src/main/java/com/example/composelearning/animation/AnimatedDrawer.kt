@@ -10,59 +10,99 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun BasicDrawerDesign() {
     var initialTranslationX = 300f
     var drawerWidth = 300f
-    val draggableState = rememberDraggableState {dragAmount ->
-        // Handle drag amount, but for now we are not implementing it yet
-        print("when the draggable state is on delta")
-    }
     val translationX = remember {
         Animatable(0f)
     }
+    val coroutineScope = rememberCoroutineScope()
+    val draggableState = rememberDraggableState {dragAmount ->
+        // Handle drag amount, but for now we are not implementing it yet
+        coroutineScope.launch {
+            Log.e("Draggable", "The drag amount is $dragAmount")
+            translationX.animateTo(dragAmount + translationX.value)
+        }
+        print("when the draggable state is on delta")
+    }
+
+    val translationXValue = remember {
+        derivedStateOf { translationX.value }
+    }
+
     val decay = rememberSplineBasedDecay<Float>()
-    translationX.updateBounds(lowerBound = 0f, upperBound = drawerWidth)
+   // translationX.updateBounds(lowerBound = 0f, upperBound = drawerWidth)
     Surface(modifier = Modifier
         .fillMaxSize()
-        .draggable(draggableState, Orientation.Horizontal, onDragStopped = { velocity: Float ->
-            val targetOffsetX = decay.calculateTargetValue(
-                initialValue = translationX.value,
-                initialVelocity = velocity
-            )
-
-            val actualTargetX = if (targetOffsetX > drawerWidth * 0.5) {
-                drawerWidth
-            } else {
-                0f
-            }
-            val targetDifference = (actualTargetX - targetOffsetX)
-
-            Log.e(
-                "Fling Animation",
-                "Print the targetOffest = $targetOffsetX, and velocity = $velocity, and difference = $targetDifference"
-            )
-
-        })
     ) {
 
         Box(modifier = Modifier
-            .size(200.dp)
-            .background(Color.Blue)
-            .graphicsLayer {
-                this.translationX = translationX.value
-            })
+            .background(Color.Green)
+            .draggable(draggableState, Orientation.Horizontal, onDragStopped = { velocity: Float ->
+                val targetOffsetX = decay.calculateTargetValue(
+                    initialValue = translationX.value,
+                    initialVelocity = velocity
+                )
+
+                val actualTargetX = if (targetOffsetX > drawerWidth * 0.5) {
+                    drawerWidth
+                } else {
+                    0f
+                }
+                val targetDifference = (actualTargetX - targetOffsetX)
+                coroutineScope.launch {
+                    translationX.animateDecay(
+                        initialVelocity = velocity,
+                        animationSpec = decay
+                    )
+                    Log.e("TranslationX", "The translationX value is ${translationX.value}")
+                }
+
+                Log.e(
+                    "Fling Animation",
+                    "Print the targetOffest = $targetOffsetX, and velocity = $velocity, and difference = $targetDifference"
+                )
+
+            }),
+            ) {
+            Button(onClick = { /*TODO*/ }, modifier = Modifier
+                .size(100.dp)
+                .background(Color.Red)
+                .graphicsLayer {
+                    this.translationX = translationXValue.value
+                    print("Transalation in box = ${translationXValue.value}")
+                },
+                shape = RectangleShape
+
+            ) {
+                Text(text = "This is cool")
+            }
+        }
+
 
     }
 }
