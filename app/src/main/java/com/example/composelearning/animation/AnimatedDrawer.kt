@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
@@ -36,7 +37,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun BasicDrawerDesign() {
     var initialTranslationX = 300f
-    var drawerWidth = 300f
+    var drawerWidth = with(LocalDensity.current) {
+        300.dp.toPx()
+    }
     val translationX = remember {
         Animatable(0f)
     }
@@ -55,7 +58,7 @@ fun BasicDrawerDesign() {
     }
 
     val decay = rememberSplineBasedDecay<Float>()
-   // translationX.updateBounds(lowerBound = 0f, upperBound = drawerWidth)
+    translationX.updateBounds(lowerBound = 0f, upperBound = drawerWidth)
     Surface(modifier = Modifier
         .fillMaxSize()
     ) {
