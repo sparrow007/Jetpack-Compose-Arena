@@ -47,10 +47,8 @@ fun BasicDrawerDesign() {
     val draggableState = rememberDraggableState {dragAmount ->
         // Handle drag amount, but for now we are not implementing it yet
         coroutineScope.launch {
-            Log.e("Draggable", "The drag amount is $dragAmount")
             translationX.animateTo(dragAmount + translationX.value)
         }
-        print("when the draggable state is on delta")
     }
 
     val translationXValue = remember {
@@ -82,13 +80,7 @@ fun BasicDrawerDesign() {
                         initialVelocity = velocity,
                         animationSpec = decay
                     )
-                    Log.e("TranslationX", "The translationX value is ${translationX.value}")
                 }
-
-                Log.e(
-                    "Fling Animation",
-                    "Print the targetOffest = $targetOffsetX, and velocity = $velocity, and difference = $targetDifference"
-                )
 
             }),
             ) {
@@ -97,7 +89,6 @@ fun BasicDrawerDesign() {
                 .background(Color.Red)
                 .graphicsLayer {
                     this.translationX = translationXValue.value
-                    print("Transalation in box = ${translationXValue.value}")
                 },
                 shape = RectangleShape
 
