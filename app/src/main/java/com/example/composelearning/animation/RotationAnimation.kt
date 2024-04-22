@@ -12,11 +12,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -42,17 +47,28 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ViewRoatation(rotationX: Float, rotationY: Float, rotationZ: Float) {
-        Box(modifier = Modifier
-            .size(200.dp)
+fun ViewRoatation(rotationX: Float, rotationY: Float, rotationZ: Float, camerDistance: Float) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(), contentAlignment = Alignment.Center) {
+        Card(modifier = Modifier
             .graphicsLayer {
                 this.rotationX = rotationX
                 this.rotationZ = rotationZ
                 this.rotationY = rotationY
+                this.shadowElevation = 10f
+                // this.cameraDistance = camerDistance
             }
-            .background(Color.Blue), contentAlignment = Alignment.Center, content = {
-            Text(text = "Hello Wor")
+            .size(200.dp)
+            .background(Color.Blue)
+            , colors = CardDefaults.cardColors(
+                containerColor = Color.Blue, //Card background color
+                //contentColor = Color.White  //Card content color,e.g.text
+            ), content = {
+           // Text(text = "Hello Wor")
         })
+    }
 }
 
 @Composable
@@ -60,27 +76,27 @@ fun ShowSliderToExperiment() {
     var rotationX by remember { mutableStateOf(0f) }
     var rotationY by remember { mutableStateOf(0f) }
     var rotationZ by remember { mutableStateOf(0f) }
+    var cameraDistance by remember { mutableStateOf(0f) }
 
-    Column {
-        ViewRoatation(rotationX, rotationY, rotationZ)
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column {
+            ViewRoatation(rotationX, rotationY, rotationZ, cameraDistance)
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        Slider(value =rotationX, onValueChange = { it -> rotationX = it })
-        Spacer(modifier = Modifier.height(10.dp))
+            Slider(value = rotationX, onValueChange = { it -> rotationX = it },
+                valueRange = -360f..360f)
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Slider(value =rotationY, onValueChange = { it -> rotationY = it })
-        Spacer(modifier = Modifier.height(10.dp))
+            Slider(value = rotationY, onValueChange = { it -> rotationY = it },  valueRange = -360f..360f)
+            Spacer(modifier = Modifier.height(10.dp))
 
-        Slider(value =rotationZ, onValueChange = { it -> rotationZ = it })
-    }
+            Slider(value = rotationZ, onValueChange = { it -> rotationZ = it },  valueRange = -360f..360f)
 
-    Button(onClick = {
-        rotationX += 10f
-        rotationY += 10f
-        rotationZ += 10f
-    }) {
-        Text(text = "Rotate")
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Slider(value = cameraDistance, onValueChange = { it -> cameraDistance = it },  valueRange = 0f..30f)
+        }
     }
 
 }
