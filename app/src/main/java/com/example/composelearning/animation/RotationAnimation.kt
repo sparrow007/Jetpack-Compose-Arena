@@ -6,6 +6,7 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,12 +49,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ViewRoatation(rotationX: Float, rotationY: Float, rotationZ: Float, camerDistance: Float) {
+fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Float, rotationZ: Float, camerDistance: Float) {
     Box(
         Modifier
             .fillMaxWidth()
             .wrapContentHeight(), contentAlignment = Alignment.Center) {
-        Card(modifier = Modifier
+        Card(modifier = modifier
             .graphicsLayer {
                 this.rotationX = rotationX
                 this.rotationZ = rotationZ
@@ -80,7 +82,22 @@ fun ShowSliderToExperiment() {
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column {
-            ViewRoatation(rotationX, rotationY, rotationZ, cameraDistance)
+            ViewRoatation(modifier = Modifier.pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        // This is called when the touch down event is received
+                        println("Touch down at $offset")
+                        rotationX = 20f
+                        rotationY = 0f
+                        tryAwaitRelease()
+                        rotationX = 0f
+                        rotationY = 0f
+                        // This is called when the touch up event is received
+                        println("Touch up at $offset")
+                    }
+                )
+            }
+                , rotationX, rotationY, rotationZ, cameraDistance)
 
             Spacer(modifier = Modifier.height(20.dp))
 
