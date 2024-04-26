@@ -1,8 +1,11 @@
 package com.example.composelearning.animation
 
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateValueAsState
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
@@ -17,10 +20,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -45,17 +50,30 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.composelearning.ui.theme.fontFamily
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-const val animationTime: Int = 500
+const val animationTime: Int = 400
 
 @Composable
 fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Float, rotationZ: Float,
-                  scale: Float) {
+                  scale: Float, isPressed: Boolean) {
+
+    val fontWeight by animateIntAsState(
+        targetValue = if (isPressed) FontWeight.Bold.weight else FontWeight.Normal.weight,
+        animationSpec = tween(durationMillis = animationTime), label = "font weight animation"
+    )
+    val colorAnimate by animateColorAsState(targetValue = if (isPressed) Color.Black else Color.Gray,
+        animationSpec = tween(durationMillis = animationTime), label = "color animation"
+    )
+
     Box(
         Modifier
             .fillMaxWidth()
@@ -65,20 +83,24 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
                 this.rotationX = rotationX
                 this.rotationZ = rotationZ
                 this.rotationY = rotationY
-                this.shadowElevation = 10f
+               // this.shadowElevation = 10f
                 this.scaleX = scale
                 this.scaleY = scale
 
                 // this.cameraDistance = camerDistance
             }
             .size(200.dp)
-            .background(Color.Blue)
             , colors = CardDefaults.cardColors(
-                containerColor = Color.Blue, //Card background color
+                containerColor = Color.White, //Card background color
                 //contentColor = Color.White  //Card content color,e.g.text
-            ), content = {
-           // Text(text = "Hello Wor")
-        })
+            ), shape = RoundedCornerShape(20.dp)) {
+                Text(text ="Hard",
+                    style = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight(fontWeight)
+                    , fontSize = 22.sp),
+                   color = colorAnimate,
+                    modifier = Modifier.padding(20.dp)
+                )
+        }
     }
 }
 
@@ -88,6 +110,9 @@ fun ShowSliderToExperiment() {
     val rotationX = remember { Animatable(0f) }
     var rotationZ by remember { mutableStateOf(0f) }
     var cameraDistance by remember { mutableStateOf(0f) }
+    var isPressed by remember {
+        mutableStateOf(false)
+    }
     val scale = remember {
         Animatable(1f)
     }
@@ -104,16 +129,19 @@ fun ShowSliderToExperiment() {
                            // rotationX = 20f
                            // rotationY = 0f
                             launch {
-                                rotationX.animateTo(0f,
+                                rotationX.animateTo(20f,
                                     animationSpec = tween(animationTime)
                                 )
                             }
                             launch {
                                 scale.animateTo(0.8f, animationSpec = tween(animationTime))
                             }
+                            isPressed = false
 
                             delay(animationTime.toLong())
                             tryAwaitRelease()
+
+                            isPressed = true
 
                             launch {
                                 scale.animateTo(1f, animationSpec = tween(animationTime))
@@ -130,7 +158,7 @@ fun ShowSliderToExperiment() {
                     }
                 )
             }
-                , rotationX.value, rotationY, rotationZ, scale.value)
+                , rotationX.value, rotationY, rotationZ, scale.value, isPressed)
 
             Spacer(modifier = Modifier.height(20.dp))
 
