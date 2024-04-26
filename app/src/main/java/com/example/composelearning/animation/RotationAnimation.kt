@@ -2,7 +2,9 @@ package com.example.composelearning.animation
 
 import android.util.Log
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -46,10 +48,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+const val animationTime: Int = 500
+
 @Composable
-fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Float, rotationZ: Float, camerDistance: Float) {
+fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Float, rotationZ: Float,
+                  scale: Float) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -60,6 +66,9 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
                 this.rotationZ = rotationZ
                 this.rotationY = rotationY
                 this.shadowElevation = 10f
+                this.scaleX = scale
+                this.scaleY = scale
+
                 // this.cameraDistance = camerDistance
             }
             .size(200.dp)
@@ -75,10 +84,14 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
 
 @Composable
 fun ShowSliderToExperiment() {
-    var rotationX by remember { mutableStateOf(0f) }
     var rotationY by remember { mutableStateOf(0f) }
+    val rotationX = remember { Animatable(0f) }
     var rotationZ by remember { mutableStateOf(0f) }
     var cameraDistance by remember { mutableStateOf(0f) }
+    val scale = remember {
+        Animatable(1f)
+    }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column {
@@ -86,23 +99,43 @@ fun ShowSliderToExperiment() {
                 detectTapGestures(
                     onPress = { offset ->
                         // This is called when the touch down event is received
-                        println("Touch down at $offset")
-                        rotationX = 20f
-                        rotationY = 0f
-                        tryAwaitRelease()
-                        rotationX = 0f
-                        rotationY = 0f
-                        // This is called when the touch up event is received
-                        println("Touch up at $offset")
+                        coroutineScope.launch {
+                            println("Touch down at $offset")
+                           // rotationX = 20f
+                           // rotationY = 0f
+                            launch {
+                                rotationX.animateTo(0f,
+                                    animationSpec = tween(animationTime)
+                                )
+                            }
+                            launch {
+                                scale.animateTo(0.8f, animationSpec = tween(animationTime))
+                            }
+
+                            delay(animationTime.toLong())
+                            tryAwaitRelease()
+
+                            launch {
+                                scale.animateTo(1f, animationSpec = tween(animationTime))
+                            }
+
+                            launch {
+                                rotationX.animateTo(0f, animationSpec = tween(animationTime))
+                            }
+                            //rotationX = 0f
+                           // rotationY = 0f
+                            // This is called when the touch up event is received
+                            println("Touch up at $offset")
+                        }
                     }
                 )
             }
-                , rotationX, rotationY, rotationZ, cameraDistance)
+                , rotationX.value, rotationY, rotationZ, scale.value)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Slider(value = rotationX, onValueChange = { it -> rotationX = it },
-                valueRange = -360f..360f)
+//            Slider(value = rotationX, onValueChange = { it -> rotationX = it },
+//                valueRange = -360f..360f)
             Spacer(modifier = Modifier.height(10.dp))
 
             Slider(value = rotationY, onValueChange = { it -> rotationY = it },  valueRange = -360f..360f)
