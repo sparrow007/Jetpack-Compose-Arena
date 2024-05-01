@@ -1,6 +1,7 @@
 package com.example.composelearning.animation
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
@@ -34,11 +36,37 @@ fun SwipeDragComposable() {
 }
 
 @Composable
+fun ShowTextDragGesture() {
+
+    var offsetX = remember {
+        mutableStateOf(0f)
+    }
+
+    var offsetY = remember {
+        mutableStateOf(0f)
+    }
+
+    Text(
+        text= "Swipe me here",
+        modifier = Modifier
+            .offset {
+            IntOffset(offsetX.value.roundToInt(), offsetY.value.roundToInt())
+        }.pointerInput(Unit) {
+            detectDragGestures { change, dragAmount ->
+                change.consume()
+                offsetX.value += dragAmount.x
+                offsetY.value += dragAmount.y
+            }
+        }
+    )
+}
+
+@Composable
 @Preview
 fun ShowSwipePreview() {
     MaterialTheme {
        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.CenterStart) {
-           SwipeDragComposable()
+           ShowTextDragGesture()
        }
     }
 }
