@@ -1,5 +1,7 @@
 package com.example.composelearning.animation
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.draggable
@@ -19,11 +21,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.coroutineScope
 import kotlin.math.roundToInt
 
 @Composable
@@ -58,7 +62,11 @@ fun ShowCardInStack() {
 @Composable
 fun CardWithColors(modifier: Modifier,color: Color) {
     Card(
-        modifier = modifier.size(200.dp),
+        modifier = modifier
+            .size(200.dp)
+            .swipeToDissmis {
+
+            },
         colors =   CardDefaults.cardColors(
             containerColor = color, //Card background color
             //contentColor = Color.White  //Card content color,e.g.text
@@ -71,8 +79,25 @@ fun CardWithColors(modifier: Modifier,color: Color) {
     }
 }
 
+private fun Modifier.swipeToDissmis(
+    onDissmiss: () -> Unit
+): Modifier = composed {
+    val offset = remember {
+       Animatable(0f)
+    }
 
+    pointerInput(this) {
+        this.density
+        val decay = splineBasedDecay<Float>(this)
+        coroutineScope {
+            while(true) {
 
+            }
+        }
+
+    }
+
+}
 @Composable
 @Preview
 fun ShowSwipePreview() {
