@@ -59,6 +59,8 @@ fun ShowCardInStack() {
     Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
         listOfCard.value.forEachIndexed { index, color ->
             key(index) {
+                //currently using the formula for constant list but we can use linear conversion formula for dynamic list
+                //
                 val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - index) * 0.05f,
                     label = "scale animation"
                 )
