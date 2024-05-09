@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.composelearning.animation.AnimateOneChip
+import com.example.composelearning.animation.ShowCardInStack
 import com.example.composelearning.animation.ShowSliderToExperiment
 import com.example.composelearning.selector.SelectorDiffcultyLayout
 import com.example.composelearning.ui.theme.ComposeLearningTheme
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface,
                 ) {
-                    SelectorDiffcultyLayout()
+                    ShowCardInStack()
                 }
             }
         }

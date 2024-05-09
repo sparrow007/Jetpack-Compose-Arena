@@ -27,7 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -52,11 +54,8 @@ fun ShowCardInStack() {
         listOfCard.reversed().forEachIndexed { index, color ->
             CardWithColors(
                 modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = index * 20
-                        )
+                    .swipeToDissmis {
+                      //Update the list for swipe values
                     },
                 color = color
             )
@@ -69,10 +68,7 @@ fun ShowCardInStack() {
 fun CardWithColors(modifier: Modifier,color: Color) {
     Card(
         modifier = modifier
-            .size(200.dp)
-            .swipeToDissmis {
-
-            },
+            .size(200.dp),
         colors =   CardDefaults.cardColors(
             containerColor = color, //Card background color
             //contentColor = Color.White  //Card content color,e.g.text
@@ -93,23 +89,21 @@ private fun Modifier.swipeToDissmis(
     }
 
     pointerInput(this) {
-        this.density
         val decay = splineBasedDecay<Float>(this)
         coroutineScope {
             while(true) {
-
                 val pointerId = awaitPointerEventScope {awaitFirstDown().id }
                 offset.stop() // now user points down the animation we will stop the ongoing animation
                 //Prepare for the velocity track and fling
                 val velocityTracker = VelocityTracker()
                 awaitPointerEventScope {
-                    horizontalDrag(pointerId) {
-                        val dragOffset = offset.value + it.position.x
+                    horizontalDrag(pointerId) {change ->
+                        val dragOffset = offset.value + change.positionChange().x
                         launch {
                             offset.snapTo(dragOffset)
                         }
-                        velocityTracker.addPosition(it.uptimeMillis, it.position)
-                        it.consume()
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        if (change.positionChange() != Offset.Zero) change.consume()
                         //Three things we did in this block
                         /***
                          * 1. calculate the drag of horizontal of the user
