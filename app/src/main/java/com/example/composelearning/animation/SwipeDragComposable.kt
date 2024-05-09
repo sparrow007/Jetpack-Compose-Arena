@@ -1,8 +1,12 @@
 package com.example.composelearning.animation
 
+import android.animation.Keyframe
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -10,6 +14,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -29,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
@@ -44,7 +50,6 @@ import kotlin.math.roundToInt
 
 @Composable
 fun ShowCardInStack() {
-
     val listOfCard = remember {
         mutableStateOf(
             arrayListOf(
@@ -103,20 +108,25 @@ private fun Modifier.swipeToDissmis(
     val offset = remember {
        Animatable(0f)
     }
+    val rotationAnim = remember {
+        Animatable(0f)
+    }
 
     pointerInput(this) {
         val decay = splineBasedDecay<Float>(this)
         coroutineScope {
-            while(true) {
-                val pointerId = awaitPointerEventScope {awaitFirstDown().id }
+            while (true) {
+                val pointerId = awaitPointerEventScope { awaitFirstDown().id }
                 offset.stop() // now user points down the animation we will stop the ongoing animation
+                rotationAnim.stop()
                 //Prepare for the velocity track and fling
                 val velocityTracker = VelocityTracker()
                 awaitPointerEventScope {
-                    horizontalDrag(pointerId) {change ->
-                        val dragOffset = offset.value + change.positionChange().x
+                    verticalDrag(pointerId) { change ->
+                        val dragOffset = offset.value + change.positionChange().y
                         launch {
                             offset.snapTo(dragOffset)
+                            rotationAnim.snapTo(1f)
                         }
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
                         if (change.positionChange() != Offset.Zero) change.consume()
@@ -129,29 +139,59 @@ private fun Modifier.swipeToDissmis(
                     }
                 }
 
-                val velocity  = velocityTracker.calculateVelocity().x
+                val velocity = velocityTracker.calculateVelocity().y
                 val targetOffset = decay.calculateTargetValue(offset.value, velocity)
+                val maxDistanceTravel = (size.height * 3f)
+                val distanceFling =
+                    Math.min(maxDistanceTravel, targetOffset.absoluteValue + size.height.toFloat())
+                val animationDuration = 500
+
+                launch {
+                    rotationAnim.animateTo(
+                        targetValue = 360*1f,
+                        initialVelocity = velocity,
+                        animationSpec = keyframes {
+                            durationMillis = animationDuration
+                        }
+                    )
+                }
+
+                launch {
+                    offset.animateTo(
+                        targetValue = 0f,
+                        animationSpec = keyframes {
+                            durationMillis = animationDuration
+                            -distanceFling at (animationDuration / 2) with LinearEasing
+                            40f at animationDuration - 80
+                        }
+                    )
+                }
 
                 //Now we checks or add the boundaries for the animation
-                offset.updateBounds(
-                   lowerBound =  -size.width.toFloat(),
-                   upperBound =  size.width.toFloat()
-                )
+//                offset.updateBounds(
+//                   lowerBound =  -size.width.toFloat(),
+//                   upperBound =  size.width.toFloat()
+//                )
 
-                if (targetOffset.absoluteValue <= size.width.toFloat() + 12.0f) {
-                    offset.animateTo(targetValue = 0f, initialVelocity = velocity)
-
-                } else {
-                    //Now it can go out of boundries and we
-                    offset.animateDecay(velocity, decay)
-                    onDissmiss()
-                }
+//                if (targetOffset.absoluteValue <= size.width.toFloat() + 12.0f) {
+//                    offset.animateTo(targetValue = 0f, initialVelocity = velocity)
+//
+//                } else {
+//                    //Now it can go out of boundries and we
+//                    offset.animateDecay(velocity, decay)
+//                    onDissmiss()
+//                }
             }
         }
 
-    }.offset {
-        IntOffset(offset.value.toInt(), 0)
     }
+        .offset {
+            IntOffset(0, offset.value.toInt())
+        }
+        .graphicsLayer {
+            transformOrigin = TransformOrigin.Center
+            rotationZ = rotationAnim.value
+        }
 
 }
 @Composable
