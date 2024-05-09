@@ -1,6 +1,7 @@
 package com.example.composelearning.animation
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.gestures.Orientation
@@ -20,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -36,29 +39,42 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 @Composable
 fun ShowCardInStack() {
 
-    val listOfCard = arrayListOf(
-        Color.Red,
-        Color.Blue,
-        Color.Green,
-        Color.Yellow,
-        Color.Magenta,
-        Color.Cyan
-    )
+    val listOfCard = remember {
+        mutableStateOf(
+            arrayListOf(
+                Color.Red,
+                Color.Blue,
+                Color.Green,
+                Color.Yellow
+            ).reversed()
+        )
+    }
 
     Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
-        listOfCard.reversed().forEachIndexed { index, color ->
-            CardWithColors(
-                modifier = Modifier
-                    .swipeToDissmis {
-                      //Update the list for swipe values
-                    },
-                color = color
-            )
+        listOfCard.value.forEachIndexed { index, color ->
+            key(index) {
+                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - index) * 0.05f,
+                    label = "scale animation"
+                )
+                CardWithColors(
+                    modifier = Modifier
+                        .swipeToDissmis {
+                            //Update the list for swipe values
+                            listOfCard.value -= color
+                        }
+                        .graphicsLayer {
+                            scaleX = animateScale.value
+                            scaleY = animateScale.value
+                        },
+                    color = color
+                )
+            }
         }
     }
 
@@ -76,9 +92,7 @@ fun CardWithColors(modifier: Modifier,color: Color) {
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 8.dp
         )
-    ) {
-
-    }
+    ) {}
 }
 
 private fun Modifier.swipeToDissmis(
@@ -118,11 +132,11 @@ private fun Modifier.swipeToDissmis(
 
                 //Now we checks or add the boundaries for the animation
                 offset.updateBounds(
-                    -size.width.toFloat(),
-                    size.width.toFloat()
+                   lowerBound =  -size.width.toFloat(),
+                   upperBound =  size.width.toFloat()
                 )
 
-                if (targetOffset <= size.width.toFloat()) {
+                if (targetOffset.absoluteValue <= size.width.toFloat() + 12.0f) {
                     offset.animateTo(targetValue = 0f, initialVelocity = velocity)
 
                 } else {
