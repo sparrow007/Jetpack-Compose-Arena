@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.composelearning.animation.AnimateOneChip
 import com.example.composelearning.animation.ShowCardInStack
 import com.example.composelearning.animation.ShowSliderToExperiment
+import com.example.composelearning.animation.SwipeableCards
 import com.example.composelearning.selector.SelectorDiffcultyLayout
 import com.example.composelearning.ui.theme.ComposeLearningTheme
 

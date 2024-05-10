@@ -2,6 +2,7 @@ package com.example.composelearning.animation
 
 import android.animation.Keyframe
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -26,9 +27,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -44,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -63,7 +67,7 @@ fun ShowCardInStack() {
 
     Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
         listOfCard.value.forEachIndexed { index, color ->
-            key(index) {
+            key(color) {
                 //currently using the formula for constant list but we can use linear conversion formula for dynamic list
                 //
                 val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - index) * 0.05f,
@@ -73,7 +77,7 @@ fun ShowCardInStack() {
                     modifier = Modifier
                         .swipeToDissmis {
                             //Update the list for swipe values
-                            listOfCard.value -= color
+                            listOfCard.value = listOf(color) + (listOfCard.value - color)
                         }
                         .graphicsLayer {
                             scaleX = animateScale.value
@@ -112,6 +116,10 @@ private fun Modifier.swipeToDissmis(
         Animatable(0f)
     }
 
+    var clearHuddle by remember {
+        mutableStateOf(false)
+    }
+
     pointerInput(this) {
         val decay = splineBasedDecay<Float>(this)
         coroutineScope {
@@ -145,27 +153,45 @@ private fun Modifier.swipeToDissmis(
                 val distanceFling =
                     Math.min(maxDistanceTravel, targetOffset.absoluteValue + size.height.toFloat())
                 val animationDuration = 500
+                val easeInOutEasing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f)
 
-                launch {
-                    rotationAnim.animateTo(
-                        targetValue = 360*1f,
-                        initialVelocity = velocity,
-                        animationSpec = keyframes {
-                            durationMillis = animationDuration
-                        }
-                    )
-                }
+                val rotationFling = 360f * 3
+                val overShoot = rotationFling + 12f
 
-                launch {
-                    offset.animateTo(
-                        targetValue = 0f,
-                        animationSpec = keyframes {
-                            durationMillis = animationDuration
-                            -distanceFling at (animationDuration / 2) with LinearEasing
-                            40f at animationDuration - 80
+                val animJobs = listOf(
+                    launch {
+                        rotationAnim.animateTo(
+                            targetValue = rotationFling,
+                            initialVelocity = velocity,
+                            animationSpec = keyframes {
+                                durationMillis = animationDuration
+                                0f at 0 with LinearOutSlowInEasing
+                                overShoot at animationDuration - 50 with LinearOutSlowInEasing
+                                rotationFling at animationDuration
+                            }
+                        )
+                        rotationAnim.snapTo(0f)
+                    },
+                    launch {
+                        offset.animateTo(
+                            targetValue = 0f,
+                            animationSpec = keyframes {
+                                durationMillis = animationDuration
+                                -distanceFling at (animationDuration / 2) with LinearEasing
+                                40f at animationDuration - 80
+                            }
+                        ) {
+                            if (value <= -size.height * 2 && !clearHuddle) {
+                                onDissmiss()
+                                clearHuddle = true
+                            }
                         }
-                    )
-                }
+                    }
+
+                )
+
+                animJobs.joinAll()
+                clearHuddle = false
 
                 //Now we checks or add the boundaries for the animation
 //                offset.updateBounds(
