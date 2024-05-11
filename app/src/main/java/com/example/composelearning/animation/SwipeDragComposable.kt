@@ -79,6 +79,9 @@ fun ShowCardInStack() {
                             //Update the list for swipe values
                             listOfCard.value = listOf(color) + (listOfCard.value - color)
                         }
+                        .offset {
+                            IntOffset(0, (listOfCard.value.size - index) * -12.dp.roundToPx())
+                        }
                         .graphicsLayer {
                             scaleX = animateScale.value
                             scaleY = animateScale.value
@@ -192,21 +195,6 @@ private fun Modifier.swipeToDissmis(
 
                 animJobs.joinAll()
                 clearHuddle = false
-
-                //Now we checks or add the boundaries for the animation
-//                offset.updateBounds(
-//                   lowerBound =  -size.width.toFloat(),
-//                   upperBound =  size.width.toFloat()
-//                )
-
-//                if (targetOffset.absoluteValue <= size.width.toFloat() + 12.0f) {
-//                    offset.animateTo(targetValue = 0f, initialVelocity = velocity)
-//
-//                } else {
-//                    //Now it can go out of boundries and we
-//                    offset.animateDecay(velocity, decay)
-//                    onDissmiss()
-//                }
             }
         }
 
