@@ -1,6 +1,5 @@
 package com.example.composelearning.animation
 
-import android.animation.Keyframe
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
@@ -13,7 +12,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
@@ -22,7 +20,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,7 +36,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
@@ -50,6 +46,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 @Composable
@@ -75,7 +72,7 @@ fun ShowCardInStack() {
                 )
                 CardWithColors(
                     modifier = Modifier
-                        .swipeToDissmis {
+                        .swipeToDismissXAxis {
                             //Update the list for swipe values
                             listOfCard.value = listOf(color) + (listOfCard.value - color)
                         }
@@ -107,6 +104,93 @@ fun CardWithColors(modifier: Modifier,color: Color) {
             defaultElevation = 8.dp
         )
     ) {}
+}
+
+private fun Modifier.swipeToDismissXAxis(
+    onDissmiss: () -> Unit
+): Modifier = composed {
+    var offsetY = remember {
+        Animatable(0f)
+    }
+    val animationDuration = 1000
+    var rotationAnim = remember {
+        Animatable(0f)
+    }
+    var clearHuddle by remember {
+        mutableStateOf(false)
+    }
+
+    pointerInput(this) {
+        val splineDecay = splineBasedDecay<Float>(this)
+        coroutineScope {
+            while (true) {
+                val downId = awaitPointerEventScope { this.awaitFirstDown().id }
+                val velocityTracker = VelocityTracker()
+                awaitPointerEventScope {
+                    verticalDrag(downId) { change ->
+                        val targetOffset = offsetY.value + change.positionChange().y
+                        launch {
+                            offsetY.snapTo(targetOffset)
+                            rotationAnim.snapTo(0f)
+                        }
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                    }
+                    val velocity = velocityTracker.calculateVelocity()
+                    val targetOffsetY = splineDecay.calculateTargetValue(offsetY.value, velocity.y)
+                    val flingDistance = min(
+                        (size.height * 3f),  targetOffsetY.absoluteValue
+                    )
+
+                    val rotationOvershoot = 360f + 12
+                    launch {
+                        val animJobs = listOf(
+                            launch {
+                                rotationAnim.animateTo(
+                                    targetValue = 180f,
+                                   // initialVelocity = velocity.y,
+                                    animationSpec = keyframes {
+                                        durationMillis = animationTime
+                                        90f at 0
+                                        180f at (animationTime / 2) with LinearOutSlowInEasing
+                                        270f at animationDuration
+                                    }
+                                )
+                               // rotationAnim.snapTo(0f)
+                            },
+                            launch {
+                                offsetY.animateTo(
+                                    targetValue = 0f,
+                                    animationSpec = keyframes {
+                                        durationMillis = animationDuration
+                                        -flingDistance at (animationDuration / 2) with LinearOutSlowInEasing
+                                       // 40f at animationDuration - 80
+                                    }
+                                ) {
+                                    if (value <= size.height * 2 && !clearHuddle) {
+                                        onDissmiss.invoke()
+                                        clearHuddle = true
+
+                                    }
+                                }
+
+                            }
+
+                        )
+                        animJobs.joinAll()
+                        clearHuddle = false
+                    }
+                }
+            }
+        }
+    }
+        .offset {
+            IntOffset(0, offsetY.value.toInt())
+        }
+        .graphicsLayer {
+            transformOrigin = TransformOrigin.Center
+            rotationX = rotationAnim.value
+
+        }
 }
 
 private fun Modifier.swipeToDissmis(
@@ -168,7 +252,7 @@ private fun Modifier.swipeToDissmis(
                             initialVelocity = velocity,
                             animationSpec = keyframes {
                                 durationMillis = animationDuration
-                                0f at 0 with LinearOutSlowInEasing
+                                0f at 0 with easeInOutEasing
                                 overShoot at animationDuration - 50 with LinearOutSlowInEasing
                                 rotationFling at animationDuration
                             }

@@ -80,9 +80,9 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
             .wrapContentHeight(), contentAlignment = Alignment.Center) {
         Card(modifier = modifier
             .graphicsLayer {
-                this.rotationX = rotationX
+                this.rotationX = rotationY
                 this.rotationZ = rotationZ
-                this.rotationY = rotationY
+              ///  this.rotationY = rotationY
                // this.shadowElevation = 10f
                 this.scaleX = scale
                 this.scaleY = scale
@@ -162,11 +162,11 @@ fun ShowSliderToExperiment() {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-//            Slider(value = rotationX, onValueChange = { it -> rotationX = it },
-//                valueRange = -360f..360f)
+            Slider(value = rotationY, onValueChange = { it -> rotationY = it }, valueRange = -360f..360f)
+
             Spacer(modifier = Modifier.height(10.dp))
 
-            Slider(value = rotationY, onValueChange = { it -> rotationY = it },  valueRange = -360f..360f)
+            Slider(value = rotationY, onValueChange = { it ->  },  valueRange = -360f..360f)
             Spacer(modifier = Modifier.height(10.dp))
 
             Slider(value = rotationZ, onValueChange = { it -> rotationZ = it },  valueRange = -360f..360f)
