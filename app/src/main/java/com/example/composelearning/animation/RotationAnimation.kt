@@ -82,8 +82,8 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
             .graphicsLayer {
                 this.rotationX = rotationY
                 this.rotationZ = rotationZ
-              ///  this.rotationY = rotationY
-               // this.shadowElevation = 10f
+                ///  this.rotationY = rotationY
+                // this.shadowElevation = 10f
                 this.scaleX = scale
                 this.scaleY = scale
 
@@ -162,7 +162,13 @@ fun ShowSliderToExperiment() {
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Slider(value = rotationY, onValueChange = { it -> rotationY = it }, valueRange = -360f..360f)
+            Column {
+
+                Slider(value = rotationY, onValueChange = { it -> rotationY = it }, valueRange = -360f..360f,
+                )
+                Text(text = "Rotation Y: $rotationY")
+            }
+
 
             Spacer(modifier = Modifier.height(10.dp))
 

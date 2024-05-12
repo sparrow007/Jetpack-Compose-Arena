@@ -16,9 +16,10 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -62,17 +63,20 @@ fun ShowCardInStack() {
         )
     }
 
-    Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = 20.dp), contentAlignment = Alignment.BottomCenter) {
         listOfCard.value.forEachIndexed { index, color ->
             key(color) {
                 //currently using the formula for constant list but we can use linear conversion formula for dynamic list
                 //
-                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - index) * 0.05f,
+                val predictiveScale = 1f - (5) * 0.05f
+                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - index) * 0.09f,
                     label = "scale animation"
                 )
                 CardWithColors(
                     modifier = Modifier
-                        .swipeToDismissXAxis {
+                        .swipeToDismissXAxis(predictiveScale) {
                             //Update the list for swipe values
                             listOfCard.value = listOf(color) + (listOfCard.value - color)
                         }
@@ -95,7 +99,9 @@ fun ShowCardInStack() {
 fun CardWithColors(modifier: Modifier,color: Color) {
     Card(
         modifier = modifier
-            .size(200.dp),
+            .fillMaxWidth()
+            .height(300.dp)
+            .padding(40.dp),
         colors =   CardDefaults.cardColors(
             containerColor = color, //Card background color
             //contentColor = Color.White  //Card content color,e.g.text
@@ -103,67 +109,86 @@ fun CardWithColors(modifier: Modifier,color: Color) {
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 8.dp
         )
-    ) {}
+    ) {
+        Text(text = "This is Me")
+    }
 }
 
 private fun Modifier.swipeToDismissXAxis(
+    scale: Float,
     onDissmiss: () -> Unit
 ): Modifier = composed {
     var offsetY = remember {
         Animatable(0f)
     }
-    val animationDuration = 1000
+    val animationDuration = 700
     var rotationAnim = remember {
         Animatable(0f)
+    }
+    val scaleAnim = remember {
+        Animatable(1f)
     }
     var clearHuddle by remember {
         mutableStateOf(false)
     }
 
-    pointerInput(this) {
+    pointerInput(Unit) {
         val splineDecay = splineBasedDecay<Float>(this)
         coroutineScope {
             while (true) {
-                val downId = awaitPointerEventScope { this.awaitFirstDown().id }
+                offsetY.stop()
+
                 val velocityTracker = VelocityTracker()
                 awaitPointerEventScope {
-                    verticalDrag(downId) { change ->
+                    verticalDrag(this.awaitFirstDown().id) { change ->
                         val targetOffset = offsetY.value + change.positionChange().y
                         launch {
                             offsetY.snapTo(targetOffset)
                             rotationAnim.snapTo(0f)
                         }
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        if (change.positionChange() != Offset.Zero) change.consume()
+
                     }
-                    val velocity = velocityTracker.calculateVelocity()
-                    val targetOffsetY = splineDecay.calculateTargetValue(offsetY.value, velocity.y)
-                    val flingDistance = min(
-                        (size.height * 3f),  targetOffsetY.absoluteValue
+                    val velocity = velocityTracker.calculateVelocity().y
+                    val targetOffsetY = splineDecay.calculateTargetValue(offsetY.value, velocity)
+                    val flingDistance = size.height * 2f
+
+                    val rotationToFling = min(
+                        180f * (targetOffsetY.absoluteValue / size.height).roundToInt(),
+                        180f * 1
                     )
 
-                    val rotationOvershoot = 360f + 12
+                    val rotationOvershoot = rotationToFling + 12
+                    val easeInOutEasing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f)
                     launch {
+                      //  scaleAnim.snapTo(scale)
                         val animJobs = listOf(
                             launch {
                                 rotationAnim.animateTo(
-                                    targetValue = 180f,
-                                   // initialVelocity = velocity.y,
+                                    targetValue = 360f,
+                                    //initialVelocity = velocity,
                                     animationSpec = keyframes {
-                                        durationMillis = animationTime
-                                        90f at 0
-                                        180f at (animationTime / 2) with LinearOutSlowInEasing
-                                        270f at animationDuration
+                                        durationMillis = animationDuration
+                                        0f at 0
+                                        180f at (animationDuration / 2 - 50) with LinearEasing
+                                        300f at (animationDuration - animationDuration / 3) with LinearEasing
+                                        360f at animationDuration
                                     }
-                                )
-                               // rotationAnim.snapTo(0f)
+                                ) {
+
+                                }
+
+                                //  rotationAnim.snapTo(0f)
                             },
                             launch {
                                 offsetY.animateTo(
                                     targetValue = 0f,
                                     animationSpec = keyframes {
                                         durationMillis = animationDuration
-                                        -flingDistance at (animationDuration / 2) with LinearOutSlowInEasing
-                                       // 40f at animationDuration - 80
+                                        -flingDistance at (animationDuration / 2) with LinearEasing
+                                        -(size.height + 12f) at (animationDuration - animationDuration / 3) with LinearEasing
+                                        0f at animationDuration
                                     }
                                 ) {
                                     if (value <= size.height * 2 && !clearHuddle) {
@@ -177,6 +202,7 @@ private fun Modifier.swipeToDismissXAxis(
 
                         )
                         animJobs.joinAll()
+                        //scaleAnim.animateTo(1f)
                         clearHuddle = false
                     }
                 }
@@ -187,10 +213,14 @@ private fun Modifier.swipeToDismissXAxis(
             IntOffset(0, offsetY.value.toInt())
         }
         .graphicsLayer {
-            transformOrigin = TransformOrigin.Center
+            // transformOrigin = TransformOrigin.Center
+            //   this.transformOrigin = TransformOrigin(0f, 0f)
             rotationX = rotationAnim.value
+            scaleX =scaleAnim.value
+            scaleY = scaleAnim.value
 
         }
+
 }
 
 private fun Modifier.swipeToDissmis(
@@ -265,7 +295,7 @@ private fun Modifier.swipeToDissmis(
                             animationSpec = keyframes {
                                 durationMillis = animationDuration
                                 -distanceFling at (animationDuration / 2) with LinearEasing
-                                40f at animationDuration - 80
+                                // 40f at animationDuration - 80
                             }
                         ) {
                             if (value <= -size.height * 2 && !clearHuddle) {
