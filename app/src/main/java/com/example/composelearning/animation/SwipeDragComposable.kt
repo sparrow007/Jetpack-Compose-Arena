@@ -70,8 +70,8 @@ fun ShowCardInStack() {
             key(color) {
                 //currently using the formula for constant list but we can use linear conversion formula for dynamic list
                 //
-                val predictiveScale = 1f - (5) * 0.05f
-                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - index) * 0.09f,
+                val predictiveScale = 0.85f
+                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - (index + 1)) * 0.1f,
                     label = "scale animation"
                 )
                 CardWithColors(
@@ -81,7 +81,7 @@ fun ShowCardInStack() {
                             listOfCard.value = listOf(color) + (listOfCard.value - color)
                         }
                         .offset {
-                            IntOffset(0, (listOfCard.value.size - index) * -12.dp.roundToPx())
+                            IntOffset(0, (listOfCard.value.size - index) * -20.dp.roundToPx())
                         }
                         .graphicsLayer {
                             scaleX = animateScale.value
@@ -101,7 +101,7 @@ fun CardWithColors(modifier: Modifier,color: Color) {
         modifier = modifier
             .fillMaxWidth()
             .height(300.dp)
-            .padding(40.dp),
+            .padding(50.dp),
         colors =   CardDefaults.cardColors(
             containerColor = color, //Card background color
             //contentColor = Color.White  //Card content color,e.g.text
@@ -145,10 +145,14 @@ private fun Modifier.swipeToDismissXAxis(
                         launch {
                             offsetY.snapTo(targetOffset)
                             rotationAnim.snapTo(0f)
+
                         }
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
                         if (change.positionChange() != Offset.Zero) change.consume()
 
+                    }
+                    launch {
+                      //  scaleAnim.animateTo(scale)
                     }
                     val velocity = velocityTracker.calculateVelocity().y
                     val targetOffsetY = splineDecay.calculateTargetValue(offsetY.value, velocity)
@@ -171,8 +175,8 @@ private fun Modifier.swipeToDismissXAxis(
                                     animationSpec = keyframes {
                                         durationMillis = animationDuration
                                         0f at 0
-                                        180f at (animationDuration / 2 - 50) with LinearEasing
-                                        300f at (animationDuration - animationDuration / 3) with LinearEasing
+                                       180f at (animationDuration / 2 - 50) with LinearEasing
+                                        270f at (animationDuration - animationDuration / 3) with LinearEasing
                                         360f at animationDuration
                                     }
                                 ) {
@@ -197,6 +201,8 @@ private fun Modifier.swipeToDismissXAxis(
 
                                     }
                                 }
+
+                                scaleAnim.snapTo(1f)
 
                             }
 
