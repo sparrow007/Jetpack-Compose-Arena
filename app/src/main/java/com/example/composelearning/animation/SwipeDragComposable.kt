@@ -15,11 +15,17 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
@@ -55,10 +62,10 @@ fun ShowCardInStack() {
     val listOfCard = remember {
         mutableStateOf(
             arrayListOf(
-                Color.Red,
-                Color.Blue,
-                Color.Green,
-                Color.Yellow
+                Color(0xff90caf9),
+                Color(0xfffafafa),
+                Color(0xffef9a9a),
+                Color(0xfffff59d),
             ).reversed()
         )
     }
@@ -110,7 +117,17 @@ fun CardWithColors(modifier: Modifier,color: Color) {
             defaultElevation = 8.dp
         )
     ) {
-        Text(text = "This is Me")
+        Box (modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomStart) {
+            Row (modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp) ) {
+                Box (modifier = Modifier.size(50.dp).pillShape())
+                Column (modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp))  {
+                    Box (modifier = Modifier.width(100.dp).height(15.dp).pillShape())
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Box (modifier = Modifier.width(70.dp).height(15.dp).pillShape())
+
+                }
+            }
+        }
     }
 }
 
