@@ -1,5 +1,6 @@
 package com.example.composelearning.animation
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
@@ -8,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -39,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -58,7 +61,12 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 @Composable
-fun ShowCardInStack() {
+fun ShowCardInStack(
+) {
+    var defaultColor by remember {
+        mutableStateOf(Color(0xff90caf9))
+    }
+    val animateColor = animateColorAsState(targetValue = defaultColor, label = "color animation")
     val listOfCard = remember {
         mutableStateOf(
             arrayListOf(
@@ -72,27 +80,34 @@ fun ShowCardInStack() {
 
     Box(modifier = Modifier
         .fillMaxSize()
-        .padding(bottom = 20.dp), contentAlignment = Alignment.BottomCenter) {
+        .padding(bottom = 20.dp)
+        .drawBehind {
+            drawRect(animateColor.value)
+        }, contentAlignment = Alignment.BottomCenter) {
         listOfCard.value.forEachIndexed { index, color ->
             key(color) {
                 //currently using the formula for constant list but we can use linear conversion formula for dynamic list
                 //
-                val predictiveScale = 0.85f
-                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - (index + 1)) * 0.1f,
-                    label = "scale animation"
-                )
+//                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - (index + 1)) * 0.1f,
+//                    label = "scale animation"
+//                )
                 CardWithColors(
                     modifier = Modifier
-                        .swipeToDismissXAxis(predictiveScale) {
+                        .swipeToDissmis {
                             //Update the list for swipe values
+                            val ind = listOfCard.value.indexOf(color)
+                            val defIndex = if (ind == 0) 3 else ind - 1
+                            defaultColor = listOfCard.value[defIndex]
                             listOfCard.value = listOf(color) + (listOfCard.value - color)
+
                         }
                         .offset {
-                            IntOffset(0, (listOfCard.value.size - index) * -20.dp.roundToPx())
+                            IntOffset(0, (listOfCard.value.size - index) * -12.dp.roundToPx())
                         }
                         .graphicsLayer {
-                            scaleX = animateScale.value
-                            scaleY = animateScale.value
+                            val scaleValue = 1f - (listOfCard.value.size - (index)) * 0.05f
+                            scaleX = scaleValue
+                            scaleY = scaleValue
                         },
                     color = color
                 )
@@ -108,7 +123,7 @@ fun CardWithColors(modifier: Modifier,color: Color) {
         modifier = modifier
             .fillMaxWidth()
             .height(300.dp)
-            .padding(50.dp),
+            .padding(30.dp),
         colors =   CardDefaults.cardColors(
             containerColor = color, //Card background color
             //contentColor = Color.White  //Card content color,e.g.text
@@ -119,11 +134,19 @@ fun CardWithColors(modifier: Modifier,color: Color) {
     ) {
         Box (modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomStart) {
             Row (modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp) ) {
-                Box (modifier = Modifier.size(50.dp).pillShape())
+                Box (modifier = Modifier
+                    .size(50.dp)
+                    .pillShape())
                 Column (modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp))  {
-                    Box (modifier = Modifier.width(100.dp).height(15.dp).pillShape())
+                    Box (modifier = Modifier
+                        .width(100.dp)
+                        .height(15.dp)
+                        .pillShape())
                     Spacer(modifier = Modifier.height(10.dp))
-                    Box (modifier = Modifier.width(70.dp).height(15.dp).pillShape())
+                    Box (modifier = Modifier
+                        .width(70.dp)
+                        .height(15.dp)
+                        .pillShape())
 
                 }
             }
@@ -132,13 +155,12 @@ fun CardWithColors(modifier: Modifier,color: Color) {
 }
 
 private fun Modifier.swipeToDismissXAxis(
-    scale: Float,
     onDissmiss: () -> Unit
 ): Modifier = composed {
     var offsetY = remember {
         Animatable(0f)
     }
-    val animationDuration = 700
+    val animationDuration = 900
     var rotationAnim = remember {
         Animatable(0f)
     }
@@ -169,7 +191,7 @@ private fun Modifier.swipeToDismissXAxis(
 
                     }
                     launch {
-                      //  scaleAnim.animateTo(scale)
+                        //  scaleAnim.animateTo(scale)
                     }
                     val velocity = velocityTracker.calculateVelocity().y
                     val targetOffsetY = splineDecay.calculateTargetValue(offsetY.value, velocity)
@@ -183,7 +205,7 @@ private fun Modifier.swipeToDismissXAxis(
                     val rotationOvershoot = rotationToFling + 12
                     val easeInOutEasing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f)
                     launch {
-                      //  scaleAnim.snapTo(scale)
+                        //  scaleAnim.snapTo(scale)
                         val animJobs = listOf(
                             launch {
                                 rotationAnim.animateTo(
@@ -192,7 +214,7 @@ private fun Modifier.swipeToDismissXAxis(
                                     animationSpec = keyframes {
                                         durationMillis = animationDuration
                                         0f at 0
-                                       180f at (animationDuration / 2 - 50) with LinearEasing
+                                        180f at (animationDuration / 2 - 50) with LinearEasing
                                         270f at (animationDuration - animationDuration / 3) with LinearEasing
                                         360f at animationDuration
                                     }
@@ -239,7 +261,7 @@ private fun Modifier.swipeToDismissXAxis(
             // transformOrigin = TransformOrigin.Center
             //   this.transformOrigin = TransformOrigin(0f, 0f)
             rotationX = rotationAnim.value
-            scaleX =scaleAnim.value
+            scaleX = scaleAnim.value
             scaleY = scaleAnim.value
 
         }
@@ -264,13 +286,12 @@ private fun Modifier.swipeToDissmis(
         val decay = splineBasedDecay<Float>(this)
         coroutineScope {
             while (true) {
-                val pointerId = awaitPointerEventScope { awaitFirstDown().id }
                 offset.stop() // now user points down the animation we will stop the ongoing animation
                 rotationAnim.stop()
                 //Prepare for the velocity track and fling
                 val velocityTracker = VelocityTracker()
                 awaitPointerEventScope {
-                    verticalDrag(pointerId) { change ->
+                    verticalDrag(awaitFirstDown().id) { change ->
                         val dragOffset = offset.value + change.positionChange().y
                         launch {
                             offset.snapTo(dragOffset)
@@ -289,13 +310,16 @@ private fun Modifier.swipeToDissmis(
 
                 val velocity = velocityTracker.calculateVelocity().y
                 val targetOffset = decay.calculateTargetValue(offset.value, velocity)
-                val maxDistanceTravel = (size.height * 3f)
+                val maxDistanceTravel = (size.height * 2f)
                 val distanceFling =
-                    Math.min(maxDistanceTravel, targetOffset.absoluteValue + size.height.toFloat())
-                val animationDuration = 500
+                    min(maxDistanceTravel, targetOffset.absoluteValue + size.height.toFloat())
+                val animationDuration = 900
                 val easeInOutEasing = CubicBezierEasing(0.42f, 0.0f, 0.58f, 1.0f)
 
-                val rotationFling = 360f * 3
+                val rotationFling = min(
+                    360f * 3,
+                    360f * (targetOffset.absoluteValue/size.height).roundToInt()
+                )
                 val overShoot = rotationFling + 12f
 
                 val animJobs = listOf(
@@ -315,13 +339,14 @@ private fun Modifier.swipeToDissmis(
                     launch {
                         offset.animateTo(
                             targetValue = 0f,
+                            initialVelocity = velocity,
                             animationSpec = keyframes {
                                 durationMillis = animationDuration
                                 -distanceFling at (animationDuration / 2) with LinearEasing
-                                // 40f at animationDuration - 80
+                                 40f at animationDuration - 80
                             }
                         ) {
-                            if (value <= -size.height * 2 && !clearHuddle) {
+                            if (value <= -size.height && !clearHuddle) {
                                 onDissmiss()
                                 clearHuddle = true
                             }
