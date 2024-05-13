@@ -80,8 +80,9 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
             .wrapContentHeight(), contentAlignment = Alignment.Center) {
         Card(modifier = modifier
             .graphicsLayer {
-                this.rotationX = rotationY
+                this.rotationY = rotationY
                 this.rotationZ = rotationZ
+                cameraDistance = 16f
                 ///  this.rotationY = rotationY
                 // this.shadowElevation = 10f
                 this.scaleX = scale
