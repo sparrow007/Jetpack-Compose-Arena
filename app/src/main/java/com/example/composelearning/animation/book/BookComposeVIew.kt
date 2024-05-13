@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -71,7 +72,7 @@ fun BookComposeView() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            val offset = animateFloatAsState(targetValue =  ((150+75) * (scrollPosition.absoluteValue/180f)), label = "translation")
+            val offset = animateFloatAsState(targetValue =  ((150 + 50) * (scrollPosition.absoluteValue/180f)), label = "translation")
 
 
             Box (modifier = Modifier
@@ -81,6 +82,7 @@ fun BookComposeView() {
                 }
                 .wrapContentHeight(), contentAlignment = Alignment.Center) {
                 BookContentView(Modifier.size(width = 150.dp, height = 200.dp))
+
                 BookCoverView(
                     Modifier
                         .graphicsLayer {
