@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -78,41 +79,55 @@ fun ShowCardInStack(
         )
     }
 
+    var checked by remember {
+        mutableStateOf(false)
+    }
+
     Box(modifier = Modifier
         .fillMaxSize()
         .padding(bottom = 20.dp)
         .drawBehind {
             drawRect(animateColor.value)
-        }, contentAlignment = Alignment.BottomCenter) {
-        listOfCard.value.forEachIndexed { index, color ->
-            key(color) {
-                //currently using the formula for constant list but we can use linear conversion formula for dynamic list
-                //
-//                val animateScale = animateFloatAsState(targetValue = 1f - (listOfCard.value.size - (index + 1)) * 0.1f,
-//                    label = "scale animation"
-//                )
-                CardWithColors(
-                    modifier = Modifier
-                        .swipeToDissmis {
-                            //Update the list for swipe values
-                            val ind = listOfCard.value.indexOf(color)
-                            val defIndex = if (ind == 0) 3 else ind - 1
-                            defaultColor = listOfCard.value[defIndex]
-                            listOfCard.value = listOf(color) + (listOfCard.value - color)
+        }) {
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                checked = it
+            },
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 30.dp)
+        )
 
-                        }
-                        .offset {
-                            IntOffset(0, (listOfCard.value.size - index) * -12.dp.roundToPx())
-                        }
-                        .graphicsLayer {
-                            val scaleValue = 1f - (listOfCard.value.size - (index)) * 0.05f
-                            scaleX = scaleValue
-                            scaleY = scaleValue
-                        },
-                    color = color
-                )
+        Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
+            listOfCard.value.forEachIndexed { index, color ->
+                key(color) {
+                    val swipeDismiss = {
+                        val ind = listOfCard.value.indexOf(color)
+                        val defIndex = if (ind == 0) 3 else ind - 1
+                        defaultColor = listOfCard.value[defIndex]
+                        listOfCard.value = listOf(color) + (listOfCard.value - color)
+                    }
+
+                   val modifier = if (!checked) {
+                        Modifier.swipeToDissmis(swipeDismiss)
+                    } else {
+                        Modifier.swipeToDismissXAxis(swipeDismiss)
+                    }
+                    CardWithColors(
+                        modifier = modifier
+                            .offset {
+                                IntOffset(0, (listOfCard.value.size - index) * -12.dp.roundToPx())
+                            }
+                            .graphicsLayer {
+                                val scaleValue = 1f - (listOfCard.value.size - (index)) * 0.05f
+                                scaleX = scaleValue
+                                scaleY = scaleValue
+                            },
+                        color = color
+                    )
+                }
             }
         }
+
     }
 
 }
@@ -191,7 +206,7 @@ private fun Modifier.swipeToDismissXAxis(
 
                     }
                     launch {
-                        //  scaleAnim.animateTo(scale)
+                        scaleAnim.animateTo(0.8f)
                     }
                     val velocity = velocityTracker.calculateVelocity().y
                     val targetOffsetY = splineDecay.calculateTargetValue(offsetY.value, velocity)
@@ -214,8 +229,8 @@ private fun Modifier.swipeToDismissXAxis(
                                     animationSpec = keyframes {
                                         durationMillis = animationDuration
                                         0f at 0
-                                        180f at (animationDuration / 2 - 50) with LinearEasing
-                                        270f at (animationDuration - animationDuration / 3) with LinearEasing
+                                        170f at (animationDuration / 2) with LinearEasing
+                                        250f at (animationDuration - animationDuration / 3) with LinearEasing
                                         360f at animationDuration
                                     }
                                 ) {
@@ -247,7 +262,7 @@ private fun Modifier.swipeToDismissXAxis(
 
                         )
                         animJobs.joinAll()
-                        //scaleAnim.animateTo(1f)
+                        scaleAnim.animateTo(1f)
                         clearHuddle = false
                     }
                 }
@@ -318,7 +333,7 @@ private fun Modifier.swipeToDissmis(
 
                 val rotationFling = min(
                     360f * 3,
-                    360f * (targetOffset.absoluteValue/size.height).roundToInt()
+                    360f * (targetOffset.absoluteValue / size.height).roundToInt()
                 )
                 val overShoot = rotationFling + 12f
 
@@ -343,7 +358,7 @@ private fun Modifier.swipeToDissmis(
                             animationSpec = keyframes {
                                 durationMillis = animationDuration
                                 -distanceFling at (animationDuration / 2) with LinearEasing
-                                 40f at animationDuration - 80
+                                40f at animationDuration - 80
                             }
                         ) {
                             if (value <= -size.height && !clearHuddle) {
