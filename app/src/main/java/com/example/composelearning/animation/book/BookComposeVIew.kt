@@ -1,6 +1,10 @@
 package com.example.composelearning.animation.book
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +36,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,15 +61,21 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.example.composelearning.R
 import com.example.composelearning.ui.theme.fontFamily
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+
+
+val width = 150
+val height = 200
 
 @Composable
 @Preview(showSystemUi = true)
 fun ShowBookCoverView() {
     MaterialTheme {
-        ShowCarouselLayoutView()
+        BookHeaderLayout()
     }
 }
 
@@ -115,6 +127,24 @@ fun ShowCarouselLayoutView() {
 }
 
 @Composable
+fun BookHeaderLayout() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+
+    ) {
+        Text(
+            text = "Book Show",
+            style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 28.sp),
+            modifier = Modifier.padding(vertical = 50.dp, horizontal = 20.dp)
+        )
+        BookComposeView()
+    }
+
+}
+
+@Composable
 fun BookComposeView() {
 
     var scrollPosition by remember {
@@ -122,8 +152,19 @@ fun BookComposeView() {
     }
     var size by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
-    val width = 150
-    val height = 200
+
+    var checked by remember {
+        mutableStateOf(false)
+    }
+    val rotationYAnim = remember {
+        Animatable(0f)
+    }
+
+    val xOffsetAnim = remember {
+       Animatable(0f)
+    }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -135,69 +176,133 @@ fun BookComposeView() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val offset = animateFloatAsState(
-                targetValue = ((width / 2) * (scrollPosition.absoluteValue / 180f)),
-                label = "translation"
-            )
 
+            if (checked) {
+                ShowBookBodyView(rotationYAnim.value, xOffsetAnim.value)
 
-            Box(modifier = Modifier
-                .wrapContentSize()
-                .offset {
-                    IntOffset(
-                        x = offset.value.dp
-                            .toPx()
-                            .toInt(), y = 0
-                    )
-                }
-                .wrapContentHeight(), contentAlignment = Alignment.Center) {
-                BookContentView(Modifier.size(width = width.dp, height = height.dp))
+            } else {
 
+                val offset = animateFloatAsState(
+                    targetValue = ((width / 2) * (scrollPosition.absoluteValue / 180f)),
+                    label = "translation"
+                )
 
-                if (scrollPosition.absoluteValue >= 90f) {
-                    BookAuthorView(
-                        Modifier
-                            .graphicsLayer {
-                                transformOrigin = TransformOrigin(0f, 0f)
-                                rotationY = scrollPosition
-                                cameraDistance = 36f
-                            }
-                            .size(width = width.dp, height = height.dp)
-                    )
-
-                } else {
-                    BookCoverView(
-                        Modifier
-                            .graphicsLayer {
-                                transformOrigin = TransformOrigin(0f, 0f)
-                                rotationY = scrollPosition
-                                cameraDistance = 36f
-                            }
-                            .size(width = width.dp, height = height.dp)
-                    )
-                }
-
-
+                ShowBookBodyView(scrollPosition, offset.value)
             }
+
 
             Spacer(modifier = Modifier.height(15.dp))
 
             Slider(
                 value = scrollPosition, onValueChange = { scrollPosition = it },
-                valueRange = -360f..360f
+                valueRange = 0f..180f,
+                modifier = Modifier.padding(horizontal = 20.dp)
             )
-            Text(text = scrollPosition.toString())
+            Spacer(modifier = Modifier.height(15.dp))
+
+
+            Switch(
+                checked = checked,
+                onCheckedChange = {
+                    if (it) {
+                        checked = true
+                        coroutineScope.launch {
+                            launch {
+                                rotationYAnim.animateTo(
+                                    targetValue = 180f, animationSpec = keyframes {
+                                        durationMillis = 1000
+                                        0f at 0 with LinearEasing
+                                        180f at 1000
+
+                                    }
+                                )
+                            }
+
+                            launch {
+                                xOffsetAnim.animateTo(
+                                    targetValue = ((width / 2f)),
+                                    animationSpec = keyframes {
+                                        durationMillis = 1000
+                                        0f at 0 with LinearEasing
+                                        ((width / 2f)) at 1000
+                                    }
+                                )
+                            }
+                        }
+                    } else {
+                        coroutineScope.launch {
+                          val list = listOf(
+                              launch {
+                                  rotationYAnim.animateTo(
+                                      targetValue = 0f, animationSpec = keyframes {
+                                          durationMillis = 1000
+                                          180f at 0 with LinearEasing
+                                          0f at 1000
+                                      }
+                                  )
+                              },
+                                      launch {
+                                  xOffsetAnim.animateTo(
+                                      targetValue = 0f,
+                                      animationSpec = keyframes {
+                                          durationMillis = 1000
+                                          ((width / 2f)) at 0 with LinearEasing
+                                          0f at 1000
+                                      }
+                                  )
+                              }
+                          )
+                            list.joinAll()
+                            checked = false
+                        }
+                    }
+                },
+            )
 
         }
     }
 
+}
 
-//
-//    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//
-//
-//    }
+@Composable
+fun ShowBookBodyView(scrollPosition: Float, offset: Float) {
+    Box(modifier = Modifier
+        .wrapContentSize()
+        .offset {
+            IntOffset(
+                x = offset.dp
+                    .toPx()
+                    .toInt(), y = 0
+            )
+        }
+        .wrapContentHeight(), contentAlignment = Alignment.Center) {
+        BookContentView(Modifier.size(width = width.dp, height = height.dp))
 
+
+        if (scrollPosition.absoluteValue >= 90f) {
+            BookAuthorView(
+                Modifier
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(0f, 0f)
+                        rotationY = -scrollPosition
+                        cameraDistance = 36f
+                    }
+                    .size(width = width.dp, height = height.dp)
+            )
+
+        } else {
+            BookCoverView(
+                Modifier
+                    .graphicsLayer {
+                        transformOrigin = TransformOrigin(0f, 0f)
+                        rotationY = -scrollPosition
+                        cameraDistance = 36f
+                    }
+                    .size(width = width.dp, height = height.dp)
+            )
+        }
+
+    }
 }
 
 @Composable
