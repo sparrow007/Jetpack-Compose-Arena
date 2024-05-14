@@ -19,6 +19,7 @@ import com.example.composelearning.animation.AnimateOneChip
 import com.example.composelearning.animation.ShowCardInStack
 import com.example.composelearning.animation.ShowSliderToExperiment
 import com.example.composelearning.animation.SwipeableCards
+import com.example.composelearning.animation.book.BookComposeView
 import com.example.composelearning.selector.SelectorDiffcultyLayout
 import com.example.composelearning.ui.theme.ComposeLearningTheme
 
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface,
                 ) {
-                    ShowCardInStack()
+                    BookComposeView()
                 }
             }
         }

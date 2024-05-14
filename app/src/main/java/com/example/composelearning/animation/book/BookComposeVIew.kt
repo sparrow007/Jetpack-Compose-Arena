@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -59,7 +60,9 @@ fun BookComposeView() {
         mutableFloatStateOf(0f)
     }
     var size by remember { mutableStateOf(IntSize.Zero) }
-
+    val density = LocalDensity.current
+    val width = 150
+    val height = 200
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column (
@@ -72,16 +75,17 @@ fun BookComposeView() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            val offset = animateFloatAsState(targetValue =  ((150 + 50) * (scrollPosition.absoluteValue/180f)), label = "translation")
+
+            val offset = animateFloatAsState(targetValue =  ((width/2) * (scrollPosition.absoluteValue/180f)), label = "translation")
 
 
             Box (modifier = Modifier
                 .wrapContentSize()
                 .offset {
-                    IntOffset(x = offset.value.toInt(), y = 0)
+                    IntOffset(x = offset.value.dp.toPx().toInt(), y = 0)
                 }
                 .wrapContentHeight(), contentAlignment = Alignment.Center) {
-                BookContentView(Modifier.size(width = 150.dp, height = 200.dp))
+                BookContentView(Modifier.size(width = width.dp, height = height.dp))
 
                 BookCoverView(
                     Modifier
@@ -90,7 +94,7 @@ fun BookComposeView() {
                             rotationY = scrollPosition
                             cameraDistance = 36f
                         }
-                        .size(width = 150.dp, height = 200.dp)
+                        .size(width = width.dp, height = height.dp)
                 )
 
             }
