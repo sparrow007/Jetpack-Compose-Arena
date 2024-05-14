@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,17 +52,66 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.example.composelearning.R
 import com.example.composelearning.ui.theme.fontFamily
 import kotlin.math.absoluteValue
+import kotlin.math.ceil
 import kotlin.math.roundToInt
 
 @Composable
 @Preview(showSystemUi = true)
 fun ShowBookCoverView() {
     MaterialTheme {
-        BookComposeView()
+        ShowCarouselLayoutView()
     }
+}
+
+@Composable
+fun ShowCarouselLayoutView() {
+    var coloList by remember {
+        mutableStateOf(listOf(Color.Red, Color.Green, Color.Blue, Color.Yellow, Color.Magenta))
+    }
+    val middleElement = ceil(((coloList.size - 1) / 2f)).toInt()
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        coloList.forEachIndexed { index, color ->
+            key(color) {
+                //Show the cards with different scale
+                val scale = 1f - (0.1f * (index - middleElement).absoluteValue)
+
+                Card(modifier = Modifier
+                    .offset {
+                        val xOffset = ((index - middleElement) * 100).dp
+                            .toPx()
+                            .toInt()
+                        IntOffset(xOffset, 0)
+                    }
+                    .graphicsLayer {
+                        this.rotationZ
+                        scaleX = scale
+                        scaleY = scale
+                    }
+                    .zIndex(scale)
+                    .size(200.dp, 200.dp)
+                    .padding(10.dp)
+                    .shadow(10.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = color, //Card background color
+                        //contentColor = Color.White  //Card content color,e.g.text
+                    ),
+                    elevation = CardDefaults.elevatedCardElevation(
+                        defaultElevation = 8.dp
+                    )
+                ) {
+                    Text(
+                        text = "Card ${index + 1}",
+                        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    )
+                }
+            }
+        }
+    }
+
 }
 
 @Composable
@@ -163,19 +213,39 @@ fun BookCoverView(modifier: Modifier) {
 
 @Composable
 fun BookContentView(modifier: Modifier) {
-    Card(modifier = modifier, shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(
-        containerColor = Color.White),
+    Card(
+        modifier = modifier, shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
     ) {
-        Column (modifier = Modifier.padding(5.dp)) {
+        Column(modifier = Modifier.padding(5.dp)) {
             Spacer(modifier = Modifier.height(5.dp))
-            Box(modifier = Modifier.fillMaxWidth().wrapContentHeight(), contentAlignment = Alignment.Center) {
-                Text(text = "Description",   style = TextStyle(fontWeight = FontWeight.Bold,fontFamily = fontFamily, fontSize = 18.sp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(), contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Description",
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = fontFamily,
+                        fontSize = 18.sp
+                    )
+                )
             }
             Spacer(modifier = Modifier.height(3.dp))
 
-            Text(text = "Joanne Rowling born 31 July 1965, known by her pen name J. K. Rowling, is a British author and philanthropist. She wrote Harry Potter, a seven-volume fantasy series published from 1997 to 2007",
-                style = TextStyle(fontWeight = FontWeight.Normal, fontSize = 11.sp, fontFamily = fontFamily, textAlign = TextAlign.Justify))
+            Text(
+                text = "Joanne Rowling born 31 July 1965, known by her pen name J. K. Rowling, is a British author and philanthropist. She wrote Harry Potter, a seven-volume fantasy series published from 1997 to 2007",
+                style = TextStyle(
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 11.sp,
+                    fontFamily = fontFamily,
+                    textAlign = TextAlign.Justify
+                )
+            )
 
         }
     }
@@ -212,7 +282,7 @@ fun BookAuthorView(modifier: Modifier) {
                 Text(
                     text = "J.K. Rowling",
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                    )
+                )
             }
         }
 
