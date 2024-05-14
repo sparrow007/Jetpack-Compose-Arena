@@ -2,6 +2,7 @@ package com.example.composelearning.animation.book
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,10 +14,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -31,17 +35,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.composelearning.R
+import com.example.composelearning.ui.theme.fontFamily
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -65,7 +76,7 @@ fun BookComposeView() {
     val height = 200
 
     Surface(modifier = Modifier.fillMaxSize()) {
-        Column (
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .onGloballyPositioned {
@@ -74,42 +85,61 @@ fun BookComposeView() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val offset = animateFloatAsState(
+                targetValue = ((width / 2) * (scrollPosition.absoluteValue / 180f)),
+                label = "translation"
+            )
 
 
-            val offset = animateFloatAsState(targetValue =  ((width/2) * (scrollPosition.absoluteValue/180f)), label = "translation")
-
-
-            Box (modifier = Modifier
+            Box(modifier = Modifier
                 .wrapContentSize()
                 .offset {
-                    IntOffset(x = offset.value.dp.toPx().toInt(), y = 0)
+                    IntOffset(
+                        x = offset.value.dp
+                            .toPx()
+                            .toInt(), y = 0
+                    )
                 }
                 .wrapContentHeight(), contentAlignment = Alignment.Center) {
                 BookContentView(Modifier.size(width = width.dp, height = height.dp))
 
-                BookCoverView(
-                    Modifier
-                        .graphicsLayer {
-                            transformOrigin = TransformOrigin(0f, 0f)
-                            rotationY = scrollPosition
-                            cameraDistance = 36f
-                        }
-                        .size(width = width.dp, height = height.dp)
-                )
+
+                if (scrollPosition.absoluteValue >= 90f) {
+                    BookAuthorView(
+                        Modifier
+                            .graphicsLayer {
+                                transformOrigin = TransformOrigin(0f, 0f)
+                                rotationY = scrollPosition
+                                cameraDistance = 36f
+                            }
+                            .size(width = width.dp, height = height.dp)
+                    )
+
+                } else {
+                    BookCoverView(
+                        Modifier
+                            .graphicsLayer {
+                                transformOrigin = TransformOrigin(0f, 0f)
+                                rotationY = scrollPosition
+                                cameraDistance = 36f
+                            }
+                            .size(width = width.dp, height = height.dp)
+                    )
+                }
+
 
             }
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            Slider(value = scrollPosition, onValueChange = {scrollPosition = it},
-                valueRange = -360f..360f) 
+            Slider(
+                value = scrollPosition, onValueChange = { scrollPosition = it },
+                valueRange = -360f..360f
+            )
             Text(text = scrollPosition.toString())
 
         }
     }
-
-
-
 
 
 //
@@ -127,38 +157,65 @@ fun BookCoverView(modifier: Modifier) {
             .clip(shape = RoundedCornerShape(8.dp)),
         painter = painterResource(id = R.drawable.harry_potter_book),
         contentScale = ContentScale.FillBounds,
-        contentDescription = "book cover image")
+        contentDescription = "book cover image"
+    )
 }
 
 @Composable
 fun BookContentView(modifier: Modifier) {
-    Card(modifier = modifier, shape = RoundedCornerShape(8.dp)) {
-        Column {
-            Text(text = "Harry Potter and the Philosopher's Stone")
-            Text(text = "J.K. Rowling")
-            Text(text = "1997")
+    Card(modifier = modifier, shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(
+        containerColor = Color.White),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
+    ) {
+        Column (modifier = Modifier.padding(5.dp)) {
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(modifier = Modifier.fillMaxWidth().wrapContentHeight(), contentAlignment = Alignment.Center) {
+                Text(text = "Description",   style = TextStyle(fontWeight = FontWeight.Bold,fontFamily = fontFamily, fontSize = 18.sp))
+            }
+            Spacer(modifier = Modifier.height(3.dp))
+
+            Text(text = "Joanne Rowling born 31 July 1965, known by her pen name J. K. Rowling, is a British author and philanthropist. She wrote Harry Potter, a seven-volume fantasy series published from 1997 to 2007",
+                style = TextStyle(fontWeight = FontWeight.Normal, fontSize = 11.sp, fontFamily = fontFamily, textAlign = TextAlign.Justify))
+
         }
     }
 }
 
-//@Composable
-//fun BookLeftView(modifier: Modifier) {
-//    Card (modifier = modifier) {
-//        Image(
-//            modifier = Modifier.shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp)).clip(
-//                shape = RoundedCornerShape(8.dp)
-//            ),
-//            painter = painterResource(id = R.drawable.harry_potter_book),
-//            contentDescription = "book cover image")
-//    }
-//}
-//
-//@Composable
-//fun BookRightView(modifier: Modifier) {
-//    Card (modifier = modifier) {
-//        Image(
-//            modifier = Modifier.shadow(elevation = 8.dp, shape = RoundedCornerShape(8.dp)),
-//            painter = painterResource(id = R.drawable.harry_potter_book),
-//            contentDescription = "book cover image")
-//    }
-//}
+@Composable
+fun BookAuthorView(modifier: Modifier) {
+    Card(
+        modifier = modifier, shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp)
+
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    rotationY = 180f
+                },
+            contentAlignment = Alignment.Center
+        ) {
+
+            Column {
+                Image(
+                    modifier = Modifier
+                        .size(70.dp)
+                        .clip(shape = CircleShape),
+                    painter = painterResource(id = R.drawable.jk_rowling),
+                    contentScale = ContentScale.FillBounds,
+                    contentDescription = "book cover image"
+                )
+
+                Spacer(modifier = Modifier.height(50.dp))
+
+                Text(
+                    text = "J.K. Rowling",
+                    style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    )
+            }
+        }
+
+
+    }
+}
