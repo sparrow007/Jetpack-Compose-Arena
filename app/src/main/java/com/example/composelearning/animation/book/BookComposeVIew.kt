@@ -204,6 +204,7 @@ fun BookComposeView() {
             Switch(
                 checked = checked,
                 onCheckedChange = {
+
                     if (it) {
                         checked = true
                         coroutineScope.launch {
