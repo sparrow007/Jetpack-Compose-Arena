@@ -29,6 +29,7 @@ import com.example.composelearning.animation.ShowSliderToExperiment
 import com.example.composelearning.animation.SwipeableCards
 import com.example.composelearning.animation.book.BookComposeView
 import com.example.composelearning.animation.book.ShowCarouselLayoutView
+import com.example.composelearning.animation.colorswaft.ColorSwitchLayoutPreview
 import com.example.composelearning.selector.SelectorDiffcultyLayout
 import com.example.composelearning.ui.theme.ComposeLearningTheme
 
@@ -50,27 +51,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularCarousel(
-                            numItems = 24,
-                            itemFraction = .2f,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        ) { index ->
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        color = colors[index % colors.size]
-                                    ),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = index.toString(),
-                                    color = Color.White,
-                                )
-                            }
-                        }
+                        ColorSwitchLayoutPreview()
                     }
                 }
             }
