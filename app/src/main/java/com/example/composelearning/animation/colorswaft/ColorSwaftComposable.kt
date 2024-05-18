@@ -99,7 +99,7 @@ private fun Modifier.rotateToSwatch(
         detectDragGestures { change, dragAmount ->
             handleCenter += dragAmount
             val centerOffset = Offset(centerX, centerY)
-            val changeOffset = Offset(change.position.x - (size.width /2f), change.position.y - size.height)
+            val changeOffset = Offset(change.position.x, change.position.y - size.height)
             val firstAngle = atan2(changeOffset.y, changeOffset.x) * (180f / PI).toFloat()
 
             val changeSecondOffset = Offset((size.width)/2f - change.position.x, size.height - change.position.y)
@@ -197,7 +197,7 @@ fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifie
     }.graphicsLayer {
        // transformOrigin = TransformOrigin.Center
        // rotationZ = 90f
-    }.background(color = Color.Gray), contentAlignment = Alignment.CenterStart) {
+    }.background(color = Color.Gray), contentAlignment = Alignment.TopStart) {
         colors.forEachIndexed { index, colorList ->
 
             Box (modifier = Modifier
@@ -231,8 +231,7 @@ fun ColorSwitchLayout(
 ) {
 
     Card (shape = RoundedCornerShape(18.dp), modifier = Modifier
-        .wrapContentSize()
-        .padding(8.dp),
+        .wrapContentSize(),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
             contentColor = Color.White
