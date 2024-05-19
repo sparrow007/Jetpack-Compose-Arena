@@ -2,6 +2,7 @@ package com.example.composelearning.animation.colorswaft
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.Spring
@@ -41,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -69,17 +71,22 @@ import kotlin.math.sin
 private fun Modifier.rotateToSwatch(
     onDrag: (angle: Float) -> Unit
 ): Modifier = composed {
-    var handleCenter by remember {
-        mutableStateOf(Offset.Zero)
+
+    var dragAngle = remember {
+        0f
     }
+
     pointerInput(Unit) {
-        detectDragGestures{ change, dragAmount ->
-            handleCenter += dragAmount
+        detectDragGestures(onDragEnd = {
+            val finalAngle = if (dragAngle > 100) 90f else 0f
+            onDrag(finalAngle)
+        }) { change, dragAmount ->
 
             val changeSecondOffset = Offset( change.position.x, size.height - change.position.y)
             val angleInRadians = (atan2(changeSecondOffset.y, changeSecondOffset.x) * (180f / PI).toFloat())
-
-            onDrag((90 - angleInRadians) )
+            dragAngle = 90 - angleInRadians
+            Log.e("animation", "Drag Angle = $dragAngle")
+            onDrag(dragAngle)
             change.consume()
         }
     }
@@ -151,7 +158,7 @@ private fun Modifier.swipeToRotate(
 }
 
 @Composable
-fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifier) {
+fun ColorSwaftComposable(colors: List<List<Color>>, onColorSelected: (color: Color) -> Unit) {
 
     val rotationAnim = remember {
         Animatable(0f)
@@ -159,25 +166,24 @@ fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifie
     val coroutineScope = rememberCoroutineScope()
 
 
-    Box (modifier = Modifier.width(260.dp).wrapContentHeight().rotateToSwatch(
-    ) { angle ->
-        coroutineScope.launch {
-            val finalAngle = if (angle > 90) 90f else if (angle < 0) 0f else angle
+    Box (modifier = Modifier
+        .width(260.dp)
+        .wrapContentHeight()
+        .rotateToSwatch(
+        ) { angle ->
+            coroutineScope.launch {
+                val finalAngle = if (angle > 160f) 90f else if (angle < -60f) 0f else angle
 
-            rotationAnim.animateTo(finalAngle,
-                animationSpec = SpringSpec(
-                    stiffness = Spring.StiffnessLow,  // The stiffness of the spring
-                    dampingRatio = Spring.DampingRatioMediumBouncy  // The damping ratio of the spring
-                )
+                rotationAnim.animateTo(
+                    finalAngle,
+                    animationSpec = SpringSpec(
+                        stiffness = Spring.StiffnessLow,  // The stiffness of the spring
+                        dampingRatio = Spring.DampingRatioMediumBouncy  // The damping ratio of the spring
+                    )
                 )
 
-        }
-    }.graphicsLayer {
-       // transformOrigin = TransformOrigin.Center
-      //  transformOrigin = TransformOrigin(0.3f, 0.9f)
-        //translationY = size.height/2f
-      //  rotationZ = (rotationAnim.value / (colors.colorList.size - 1)) * index
-    }.background(color = Color.Black), contentAlignment = Alignment.TopStart) {
+            }
+        }, contentAlignment = Alignment.TopStart) {
         colors.forEachIndexed { index, colorList ->
 
             Box (modifier = Modifier
@@ -190,7 +196,8 @@ fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifie
                 }
             ) {
                 ColorSwitchLayout(
-                    colors = colorList
+                    colors = colorList,
+                    onColorSelected = onColorSelected
                 )
             }
 
@@ -201,6 +208,7 @@ fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifie
 @Composable
 fun ColorSwitchLayout(
     colors: List<Color>,
+    onColorSelected: (color: Color) -> Unit
 ) {
 
     Card (shape = RoundedCornerShape(18.dp), modifier = Modifier
@@ -233,8 +241,9 @@ fun ColorSwitchLayout(
                                 topStart = topStart, topEnd = topEnd,
                                 bottomStart = bottomStart, bottomEnd = bottomEnd
                             )
-                        ).clickable {
-                            Log.e("MAIN ANIMATION", "This is clicked $index")
+                        )
+                        .clickable {
+                            onColorSelected.invoke(color)
                         }
 
                 ) {}
@@ -251,42 +260,48 @@ fun ColorSwitchLayoutPreview() {
 
     val listofColorStack = listOf(
         listOf(
-            Color.Blue,
-            Color.Red,
-            Color.Green,
-            Color.LightGray
+            Color(0xFF3DA4FF),
+            Color(0xFF7ABFFA),
+            Color(0xFFAED7FA),
+            Color(0xFFCFE6FA),
         ),
         listOf(
-            Color.Red,
-            Color.Green,
-            Color.Magenta,
-            Color.Cyan
+            Color(0xFFFF7536),
+            Color(0xFFFFA67D),
+            Color(0xFFFFBC9E),
+            Color(0xFFFFCCB4),
         ),
         listOf(
-            Color.Green,
-            Color.Magenta,
-            Color.Cyan,
-            Color.Blue
+            Color(0xFF07C4C4),
+            Color(0xFF77FCFC),
+            Color(0xFF9AF8F8),
+            Color(0xFFD1FDFD),
         ),
         listOf(
-            Color.Magenta,
-            Color.Cyan,
-            Color.Blue,
-            Color.Red
+            Color(0xFFB52BFF),
+            Color(0xFFC459FD),
+            Color(0xFFD48DFA),
+            Color(0xFFE7BFFD),
         ),
         listOf(
-            Color.Cyan,
-            Color.Blue,
-            Color.Red,
-            Color.Magenta
+            Color(0xFFFFCC11),
+            Color(0xFFFFDA55),
+            Color(0xFFFFE893),
+            Color(0xFFFFF3C6),
         ),
         listOf(
-            Color.Blue,
-            Color.Red,
-            Color.Green,
-            Color.Gray
+            Color(0xFF3DFF11),
+            Color(0xFF7FFF62),
+            Color(0xFFA2FF8D),
+            Color(0xFFCEFFC3),
         ),
     )
+
+    var backgroundColor by remember {
+        mutableStateOf(Color.Black)
+    }
+
+    val animateColor = animateColorAsState(targetValue = backgroundColor, label = "Color Animation")
 
     MaterialTheme {
         Surface(modifier = Modifier
@@ -294,10 +309,18 @@ fun ColorSwitchLayoutPreview() {
             .background(Color.Black)) {
             Box(modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black), contentAlignment = Alignment.Center) {
-                ColorSwaftComposable(
-                    colors = listofColorStack,
-                )
+                .drawBehind {
+                    drawRect(color = animateColor.value)
+                }, contentAlignment = Alignment.BottomStart) {
+                Box(modifier = Modifier.wrapContentSize().padding(
+                    start = 40.dp, end = 20.dp, bottom = 70.dp, top = 20.dp
+                )) {
+                    ColorSwaftComposable(
+                        colors = listofColorStack,
+                    ) {
+                        backgroundColor = it
+                    }
+                }
             }
         }
     }
