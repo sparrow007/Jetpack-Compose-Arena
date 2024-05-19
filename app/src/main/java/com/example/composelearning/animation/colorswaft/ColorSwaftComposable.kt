@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
@@ -63,28 +64,6 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-@Composable
-fun ColorSwitchComposable() {
-    MaterialTheme {
-        val colors = listOf(
-            Color.Blue,
-            Color.Red,
-            Color.Green,
-            Color.Magenta,
-            Color.Cyan,
-        )
-        // A surface container using the 'background' color from the theme
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-
-            }
-        }
-    }
-}
-
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.rotateToSwatch(
     onDrag: (angle: Float) -> Unit
@@ -96,20 +75,17 @@ private fun Modifier.rotateToSwatch(
         val centerX = size.width / 2f
         val centerY = size.height / 2f
 
-        detectDragGestures { change, dragAmount ->
+        detectDragGestures{ change, dragAmount ->
             handleCenter += dragAmount
             val centerOffset = Offset(centerX, centerY)
             val changeOffset = Offset(change.position.x, change.position.y - size.height)
             val firstAngle = atan2(changeOffset.y, changeOffset.x) * (180f / PI).toFloat()
 
-            val changeSecondOffset = Offset((size.width)/2f - change.position.x, size.height - change.position.y)
+            val changeSecondOffset = Offset( change.position.x, size.height - change.position.y)
             val angleInRadians = (atan2(changeSecondOffset.y, changeSecondOffset.x) * (180f / PI).toFloat())
-            val angleInDegrees = Math.toDegrees(angleInRadians.toDouble())
 
-            Log.e("Animation", "angle in degree f = ${90+ firstAngle} and also an second = ${ 90 - (180 - angleInRadians)} ")
-
-
-           onDrag(90 + firstAngle)
+            Log.e("Animation", "angle in degree f = ${90+ firstAngle} and also an second = ${ 90 - angleInRadians} ")
+            onDrag((90 - angleInRadians) )
             //change.consume()
         }
     }
@@ -192,12 +168,22 @@ fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifie
     Box (modifier = Modifier.width(260.dp).wrapContentHeight().rotateToSwatch(
     ) { angle ->
         coroutineScope.launch {
-            rotationAnim.snapTo(angle)
+            val finalAngle = if (angle > 90) 90f else if (angle < 0) 0f else angle
+
+            rotationAnim.animateTo(finalAngle,
+                animationSpec = SpringSpec(
+                    stiffness = Spring.StiffnessLow,  // The stiffness of the spring
+                    dampingRatio = Spring.DampingRatioMediumBouncy  // The damping ratio of the spring
+                )
+                )
+
         }
     }.graphicsLayer {
        // transformOrigin = TransformOrigin.Center
-       // rotationZ = 90f
-    }.background(color = Color.Gray), contentAlignment = Alignment.TopStart) {
+      //  transformOrigin = TransformOrigin(0.3f, 0.9f)
+        //translationY = size.height/2f
+      //  rotationZ = (rotationAnim.value / (colors.colorList.size - 1)) * index
+    }.background(color = Color.Black), contentAlignment = Alignment.TopStart) {
         colors.forEachIndexed { index, colorList ->
 
             Box (modifier = Modifier
@@ -205,29 +191,22 @@ fun ColorSwaftComposable(colors: List<List<Color>>, modifier: Modifier = Modifie
                     cameraDistance = 12 * density
                     transformOrigin = TransformOrigin(0.3f, 0.9f)
                     //translationY = size.height/2f
-                    rotationZ = (rotationAnim.value / (colorList.size - 1)) * index
+                    rotationZ = (rotationAnim.value / (colors.size - 1)) * index
                    // translationY = -(size.height/2f)
                 }
             ) {
                 ColorSwitchLayout(
-                    colors = colorList,
-                    modifier = modifier,
-                    selectedIndex = 0,
-                    onSelectedIndexChanged = {},
+                    colors = colorList
                 )
             }
 
         }
     }
-
 }
 
 @Composable
 fun ColorSwitchLayout(
     colors: List<Color>,
-    modifier: Modifier = Modifier,
-    selectedIndex: Int,
-    onSelectedIndexChanged: (Int) -> Unit,
 ) {
 
     Card (shape = RoundedCornerShape(18.dp), modifier = Modifier
