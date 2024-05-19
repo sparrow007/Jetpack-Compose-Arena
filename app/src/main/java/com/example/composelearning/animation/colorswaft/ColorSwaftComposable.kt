@@ -9,6 +9,7 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.drag
@@ -72,21 +73,14 @@ private fun Modifier.rotateToSwatch(
         mutableStateOf(Offset.Zero)
     }
     pointerInput(Unit) {
-        val centerX = size.width / 2f
-        val centerY = size.height / 2f
-
         detectDragGestures{ change, dragAmount ->
             handleCenter += dragAmount
-            val centerOffset = Offset(centerX, centerY)
-            val changeOffset = Offset(change.position.x, change.position.y - size.height)
-            val firstAngle = atan2(changeOffset.y, changeOffset.x) * (180f / PI).toFloat()
 
             val changeSecondOffset = Offset( change.position.x, size.height - change.position.y)
             val angleInRadians = (atan2(changeSecondOffset.y, changeSecondOffset.x) * (180f / PI).toFloat())
 
-            Log.e("Animation", "angle in degree f = ${90+ firstAngle} and also an second = ${ 90 - angleInRadians} ")
             onDrag((90 - angleInRadians) )
-            //change.consume()
+            change.consume()
         }
     }
 }
@@ -239,7 +233,9 @@ fun ColorSwitchLayout(
                                 topStart = topStart, topEnd = topEnd,
                                 bottomStart = bottomStart, bottomEnd = bottomEnd
                             )
-                        )
+                        ).clickable {
+                            Log.e("MAIN ANIMATION", "This is clicked $index")
+                        }
 
                 ) {}
             }
