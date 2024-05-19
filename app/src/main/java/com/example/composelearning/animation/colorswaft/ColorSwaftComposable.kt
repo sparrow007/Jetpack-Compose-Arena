@@ -290,10 +290,10 @@ fun ColorSwitchLayoutPreview() {
             Color(0xFFFFF3C6),
         ),
         listOf(
-            Color(0xFF3DFF11),
-            Color(0xFF7FFF62),
-            Color(0xFFA2FF8D),
-            Color(0xFFCEFFC3),
+            Color(0xFF0B0111),
+            Color(0xFF2B2E2A),
+            Color(0xFF454643),
+            Color(0xFF7D807C),
         ),
     )
 
