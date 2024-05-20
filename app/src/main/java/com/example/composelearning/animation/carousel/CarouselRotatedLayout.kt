@@ -128,6 +128,52 @@ fun getCoordinates(width: Float, height: Float, angle: Float): Offset {
 
 private fun Double.degreesToRadians(): Double = this / 360.0 * 2.0 * PI
 
+/***
+ * Adding the horizontal drag in the carousel layout
+ */
+@Stable
+private interface CarouseLayoutState {
+    val angle: Float
+
+    suspend fun stop()
+
+    suspend fun snapTo(angle: Float)
+
+    suspend fun decayTo(angle: Float, velocity: Float)
+}
+
+class CarouselRotatedLayoutImpl : CarouseLayoutState {
+
+    private val animator = Animatable(0f)
+
+    private val decayAnimationSpec = FloatSpringSpec(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessVeryLow,
+    )
+
+    override val angle: Float  get() = animator.value
+
+    override suspend fun stop() {
+        animator.stop()
+    }
+
+    override suspend fun snapTo(angle: Float) {
+        animator.snapTo(targetValue = angle)
+    }
+
+    override suspend fun decayTo(angle: Float, velocity: Float) {
+        animator.animateTo(
+            targetValue = angle,
+            initialVelocity = velocity,
+            animationSpec = decayAnimationSpec
+        )
+    }
+}
+
+@Composable
+private fun rememberCarouselLayout(): CarouseLayoutState = remember {
+    CarouselRotatedLayoutImpl()
+}
 
 @Composable
 @Preview
