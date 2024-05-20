@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.example.composelearning.animation.CircularCarousel
 import com.example.composelearning.animation.book.width
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -95,8 +96,77 @@ fun CarouselLayout(
        val placeables = measurables.map { measurable -> measurable.measure(itemConstraints) }
 
        layout(constraints.maxWidth, constraints.maxHeight) {
+           val availableHorizontalSpace = constraints.maxWidth - itemDimension
+           val horizontalOffset = availableHorizontalSpace / 2.0
 
+           val verticalOffset = (constraints.maxHeight - itemDimension).toInt() / 2
+
+           val angleStep = 2.0 * PI / numOfItems.toDouble()
+
+           placeables.forEachIndexed { index, placeable ->
+               val itemAngle =  ((angleStep * index.toDouble()))
+
+               val offset = getCoordinates(availableHorizontalSpace / 2.0f,
+                   height = (constraints.maxHeight / 2.0f - itemDimension),
+                    itemAngle.toFloat())
+
+               placeable.placeRelative(
+                   x = (horizontalOffset + offset.x).roundToInt(),
+                   y =  offset.y.roundToInt() + verticalOffset
+               )
+           }
        }
    }
 
+}
+
+fun getCoordinates(width: Float, height: Float, angle: Float): Offset {
+    val y = height * cos(angle)
+    val x = width * sin(angle)
+    return Offset(x, y)
+}
+
+private fun Double.degreesToRadians(): Double = this / 360.0 * 2.0 * PI
+
+
+@Composable
+@Preview
+private fun ShowCarouselLayout() {
+    MaterialTheme {
+        val colors = listOf(
+            Color.Blue,
+            Color.Red,
+            Color.Green,
+            Color.Magenta,
+            Color.Cyan,
+        )
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CarouselLayout(
+                    numOfItems = 24,
+                    itemFraction = .2f,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                ) { index ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                color = colors[index % colors.size]
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = index.toString(),
+                            color = Color.White,
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
