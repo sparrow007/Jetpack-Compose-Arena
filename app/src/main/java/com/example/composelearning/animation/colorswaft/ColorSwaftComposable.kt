@@ -85,7 +85,6 @@ private fun Modifier.rotateToSwatch(
             val changeSecondOffset = Offset( change.position.x, size.height - change.position.y)
             val angleInRadians = (atan2(changeSecondOffset.y, changeSecondOffset.x) * (180f / PI).toFloat())
             dragAngle = 90 - angleInRadians
-            Log.e("animation", "Drag Angle = $dragAngle")
             onDrag(dragAngle)
             change.consume()
         }

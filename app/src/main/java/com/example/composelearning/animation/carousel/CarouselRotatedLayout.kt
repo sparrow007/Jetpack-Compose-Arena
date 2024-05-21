@@ -70,16 +70,17 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 
 @Composable
-fun CarouselLayout(
+private fun CarouselLayout(
     numOfItems: Int,
     modifier: Modifier = Modifier,
     itemFraction: Float = 0.25f,
+    carouseLayoutState: CarouseLayoutState = rememberCarouselLayout(),
     contentFactory: @Composable (Int)-> Unit,
 ) {
     require(numOfItems > 0) {"The number of items must be greater than 0"}
     require(itemFraction > 0f && itemFraction < 1f) {"The item fraction must be between 0 and 1"}
 
-   Layout(modifier = modifier, content = {
+   Layout(modifier = modifier.dragCarousel(state = carouseLayoutState), content = {
        repeat(numOfItems) {
            Box(modifier = Modifier.fillMaxSize()) {
                contentFactory(it)
@@ -104,7 +105,7 @@ fun CarouselLayout(
            val angleStep = 2.0 * PI / numOfItems.toDouble()
 
            placeables.forEachIndexed { index, placeable ->
-               val itemAngle =  ((angleStep * index.toDouble()))
+               val itemAngle =  (carouseLayoutState.angle.degreesToRadians() + ((angleStep * index.toDouble()))) % 360
 
                val offset = getCoordinates(availableHorizontalSpace / 2.0f,
                    height = (constraints.maxHeight / 2.0f - itemDimension),
@@ -126,7 +127,50 @@ fun getCoordinates(width: Float, height: Float, angle: Float): Offset {
     return Offset(x, y)
 }
 
-private fun Double.degreesToRadians(): Double = this / 360.0 * 2.0 * PI
+private fun Float.degreesToRadians(): Float = (this / 360.0 * 2.0 * PI).toFloat()
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
+@Composable
+private fun Modifier.dragCarousel(
+    state: CarouseLayoutState
+): Modifier = composed {
+    pointerInput(Unit) {
+        val decay = splineBasedDecay<Float>(this)
+        val degreeInPixels = 180f/size.width.toFloat()
+        coroutineScope {
+            while (true) {
+                val tracker = VelocityTracker()
+                val pointerInput = awaitPointerEventScope { awaitFirstDown().id }
+                state.stop()
+                awaitPointerEventScope {
+                    horizontalDrag(pointerInput) { change ->
+                        val horizontalOffset = state.angle + change.positionChange().x * degreeInPixels
+                        launch {
+                            state.snapTo(horizontalOffset)
+                        }
+
+                       tracker.addPosition(change.uptimeMillis, change.position)
+                        if (change.positionChange() != Offset.Zero) change.consume()
+
+                        //add the logic for the horizontal drag
+                    }
+
+                    val velocity = tracker.calculateVelocity().x
+                    launch {
+                        val targetAngle = decay.calculateTargetValue(
+                            state.angle,
+                            velocity * degreeInPixels
+                        )
+                        state.decayTo(targetAngle, velocity * degreeInPixels)
+                    }
+
+
+                }
+            }
+        }
+
+    }
+}
 
 /***
  * Adding the horizontal drag in the carousel layout
