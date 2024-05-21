@@ -81,8 +81,24 @@ private fun CarouselLayout(
     require(itemFraction > 0f && itemFraction < 1f) {"The item fraction must be between 0 and 1"}
 
    Layout(modifier = modifier.dragCarousel(state = carouseLayoutState), content = {
+       val angleStep = 360f / numOfItems
        repeat(numOfItems) {
-           Box(modifier = Modifier.fillMaxSize()) {
+           val itemAngle = (carouseLayoutState.angle + angleStep * it).normalizeAngle()
+           Box(modifier = Modifier.fillMaxSize()
+               .zIndex(if (itemAngle < 180f) 180 - itemAngle else itemAngle - 180f)
+               .graphicsLayer {
+                   cameraDistance = 12 * density
+                   rotationY = itemAngle
+                   alpha = if (itemAngle < 90f || itemAngle > 270f) 1f else 0.6f
+
+                   val scale = 1 - 0.2f * when {
+                       itemAngle <= 180f -> itemAngle / 180f
+                       else -> (360f - itemAngle) / 180f
+                   }
+                   scaleX = scale
+                   scaleY = scale
+
+               }) {
                contentFactory(it)
            }
        }
@@ -126,6 +142,8 @@ fun getCoordinates(width: Float, height: Float, angle: Float): Offset {
     val x = width * sin(angle)
     return Offset(x, y)
 }
+
+private fun Float.normalizeAngle(): Float = (this % 360).let { if (it < 0) it + 360 else it }
 
 private fun Float.degreesToRadians(): Float = (this / 360.0 * 2.0 * PI).toFloat()
 
