@@ -140,11 +140,17 @@ private fun Modifier.dragCarousel(
         coroutineScope {
             while (true) {
                 val tracker = VelocityTracker()
-                val pointerInput = awaitPointerEventScope { awaitFirstDown().id }
+                val pointerInput = awaitPointerEventScope { awaitFirstDown() }
                 state.stop()
                 awaitPointerEventScope {
-                    horizontalDrag(pointerInput) { change ->
-                        val horizontalOffset = state.angle + change.positionChange().x * degreeInPixels
+                    val isTopHalf = pointerInput.position.y < size.height / 2
+                    val signum = when {
+                        isTopHalf -> -1f
+                        else -> 1f
+                    }
+
+                    horizontalDrag(pointerInput.id) { change ->
+                        val horizontalOffset = state.angle + signum * change.positionChange().x * degreeInPixels
                         launch {
                             state.snapTo(horizontalOffset)
                         }
@@ -159,9 +165,9 @@ private fun Modifier.dragCarousel(
                     launch {
                         val targetAngle = decay.calculateTargetValue(
                             state.angle,
-                            velocity * degreeInPixels
+                            velocity * degreeInPixels * signum
                         )
-                        state.decayTo(targetAngle, velocity * degreeInPixels)
+                        state.decayTo(targetAngle, velocity * degreeInPixels * signum)
                     }
 
 
