@@ -124,7 +124,7 @@ private fun CarouselLayout(
                val itemAngle =  (carouseLayoutState.angle.degreesToRadians() + ((angleStep * index.toDouble()))) % 360
 
                val offset = getCoordinates(availableHorizontalSpace / 2.0f,
-                   height = (constraints.maxHeight / 2.0f - itemDimension),
+                   height = (constraints.maxHeight / 2.0f - itemDimension) * carouseLayoutState.minorAxisFactor,
                     itemAngle.toFloat())
 
                placeable.placeRelative(
@@ -167,11 +167,15 @@ private fun Modifier.dragCarousel(
                         else -> 1f
                     }
 
-                    horizontalDrag(pointerInput.id) { change ->
+                    drag(pointerInput.id) { change ->
                         val horizontalOffset = state.angle + signum * change.positionChange().x * degreeInPixels
                         launch {
                             state.snapTo(horizontalOffset)
                         }
+
+                        val scaleFactor = state.minorAxisFactor + change.positionChange().y / (size.height/2f)
+
+                        state.setMinorAxisFactor(scaleFactor)
 
                        tracker.addPosition(change.uptimeMillis, change.position)
                         if (change.positionChange() != Offset.Zero) change.consume()
@@ -202,17 +206,26 @@ private fun Modifier.dragCarousel(
 @Stable
 private interface CarouseLayoutState {
     val angle: Float
+    val minorAxisFactor: Float
 
     suspend fun stop()
 
     suspend fun snapTo(angle: Float)
 
     suspend fun decayTo(angle: Float, velocity: Float)
+
+    fun setMinorAxisFactor(factor: Float)
 }
 
 class CarouselRotatedLayoutImpl : CarouseLayoutState {
 
     private val animator = Animatable(0f)
+
+    private val _eccentrictiy = mutableStateOf(0f)
+
+    override val minorAxisFactor: Float
+        get() = _eccentrictiy.value
+
 
     private val decayAnimationSpec = FloatSpringSpec(
         dampingRatio = Spring.DampingRatioNoBouncy,
@@ -227,6 +240,10 @@ class CarouselRotatedLayoutImpl : CarouseLayoutState {
 
     override suspend fun snapTo(angle: Float) {
         animator.snapTo(targetValue = angle)
+    }
+
+    override fun setMinorAxisFactor(factor: Float) {
+        this._eccentrictiy.value = factor.coerceIn(-1f, 1f)
     }
 
     override suspend fun decayTo(angle: Float, velocity: Float) {
