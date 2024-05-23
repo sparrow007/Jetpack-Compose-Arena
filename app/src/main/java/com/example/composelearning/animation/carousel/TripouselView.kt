@@ -65,6 +65,7 @@ import androidx.compose.ui.input.pointer.consumePositionChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -97,17 +98,18 @@ fun TripouselView(
           mutableStateOf(
               listOf<ItemData>(
                   ItemData(
+                      color = Color(0xffef9a9a),
+                      imagePath = R.drawable.cover_mag_th
+                  ),
+                  ItemData(
                       color = Color(0xff90caf9),
-                      imagePath = R.drawable.cover_maga_f
+                      imagePath = R.drawable.cover_mag_fi
                   ),
                   ItemData(
                       color = Color(0xfffafafa),
                       imagePath = R.drawable.cover_mag_sec
                   ),
-                  ItemData(
-                      color = Color(0xffef9a9a),
-                      imagePath = R.drawable.cover_mag_th
-                  ),
+
               )
           )
     }
@@ -231,7 +233,8 @@ private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
             defaultElevation = 12.dp
         )
     ) {
-        Image(painter = painterResource(id = data.imagePath), contentDescription = "magazine image")
+        Image(painter = painterResource(id = data.imagePath), contentDescription = "magazine image",
+            contentScale = ContentScale.FillBounds)
 
     }
 }
