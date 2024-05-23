@@ -7,7 +7,10 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,15 +33,18 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -77,51 +83,61 @@ import kotlin.math.sin
 
 @Composable
 fun TripouselView(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.offset { IntOffset.Zero },
 ) {
-
     val listOfCard = remember {
-        mutableStateOf(
-            listOf(
-                ItemData(
-                    color = Color(0xff90caf9)
-                ),
-                ItemData(
-                    color = Color(0xfffafafa)
-                ),
-                ItemData(
-                    color = Color(0xffef9a9a)
-                ),
-            )
-        )
+          mutableStateOf(
+              listOf<ItemData>(
+                  ItemData(
+                      color = Color(0xff90caf9)
+                  ),
+                  ItemData(
+                      color = Color(0xfffafafa)
+                  ),
+                  ItemData(
+                      color = Color(0xffef9a9a)
+                  ),
+              )
+          )
     }
-    var properties by remember {
-        mutableStateOf(Triple<Float, Float, Float>(0f, 0f, 0f))
+    var showList by remember {
+        mutableStateOf(true)
     }
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
 
-        listOfCard.value.forEachIndexed { index, data ->
-            key(data.id) {
-                ItemView(
-                    color = data.color,
-                    modifier = Modifier
-                        .offset {
-                            getItemOffset(index)
-                        }
-                        .graphicsLayer {
-//                            rotationZ = getItemProperties(listOfCard.value.indexOf(color)).second
-//                            scaleX = getItemProperties(listOfCard.value.indexOf(color)).first
-//                            scaleY = getItemProperties(listOfCard.value.indexOf(color)).first
-                        }
-                        .swipeToDissmiss {
-                            listOfCard.value = listOf(ItemData(color = data.color)) + (listOfCard.value - data)
-                            Log.e("TAG", "TripouselView: $listOfCard")
-                        }
-                )
-            }
+        Column {
+            if (showList) {
+               Box(modifier = Modifier
+                   .fillMaxWidth()
+                   .wrapContentHeight()
+                   .padding(5.dp), contentAlignment = Alignment.Center) {
 
+                   listOfCard.value.forEachIndexed { index, data ->
+                      key(data.id) {
+                          ItemView(
+                              data = data,
+                              modifier = Modifier
+                                  .swipeToDissmiss {
+                                      val itemData = ItemData(
+                                          color = data.color,
+                                          id = data.id
+                                      )
+                                      listOfCard.value = listOf(itemData) + (listOfCard.value - data)
+                                  },
+                              index = index
+                          )
+                      }
+
+                   }
+               }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(onClick = { showList = !showList }) {
+                Text("Show the List")
+            }
         }
+
 
     }
 
@@ -137,6 +153,7 @@ private fun getItemProperties(index: Int): Triple<Float, Float, Float> {
         0 -> {
             Triple(0.8f, -22f, 1f)
         }
+
         1 -> {
             Triple(0.8f, 22f, 2f)
         }
@@ -162,12 +179,35 @@ private fun getItemOffset(index: Int): IntOffset {
 }
 
 @Composable
-private fun ItemView(modifier: Modifier, color: Color) {
+private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
+
+    val animationTiming = 300
+
+    val animateOffset = animateIntOffsetAsState(targetValue = getItemOffset(index),
+        label = "",
+        animationSpec = tween(animationTiming)
+    )
+    val animateRotation = animateFloatAsState(
+        targetValue = getItemProperties(index).second,
+        animationSpec = tween(animationTiming), label = ""
+    )
+    val animateScale = animateFloatAsState(targetValue = getItemProperties(index).first,
+        animationSpec = tween(animationTiming), label = ""
+    )
+
     Card (
-        modifier = modifier.size(width = 210.dp, height = 280.dp),
+        modifier = modifier
+            .offset {
+                animateOffset.value
+            }.graphicsLayer {
+                rotationZ = animateRotation.value
+                scaleX = animateScale.value
+                scaleY = animateScale.value
+            }
+            .size(width = 210.dp, height = 280.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = color
+            containerColor = data.color
         ),
         elevation = CardDefaults.elevatedCardElevation(
             defaultElevation = 8.dp
@@ -206,8 +246,9 @@ private fun Modifier.swipeToDissmiss(
                         } else {
                             offsetAnim.animateDecay(velocity, decay) {
                             }
-
+                            offsetAnim.snapTo(0f)
                             onDismiss()
+
                         }
                     }
 
