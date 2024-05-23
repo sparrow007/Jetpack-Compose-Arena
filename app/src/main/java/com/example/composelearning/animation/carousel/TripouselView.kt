@@ -64,6 +64,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -71,7 +73,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.composelearning.animation.CircularCarousel
 import com.example.composelearning.animation.book.width
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.PI
@@ -115,6 +119,9 @@ fun TripouselView(
 
                    listOfCard.value.forEachIndexed { index, data ->
                       key(data.id) {
+                          //There is no new composable it's only the laid one which is
+                          // getting recomposed based the key to identify the composable
+
                           ItemView(
                               data = data,
                               modifier = Modifier
@@ -181,7 +188,7 @@ private fun getItemOffset(index: Int): IntOffset {
 @Composable
 private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
 
-    val animationTiming = 300
+    val animationTiming = 500
 
     val animateOffset = animateIntOffsetAsState(targetValue = getItemOffset(index),
         label = "",
@@ -199,7 +206,8 @@ private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
         modifier = modifier
             .offset {
                 animateOffset.value
-            }.graphicsLayer {
+            }
+            .graphicsLayer {
                 rotationZ = animateRotation.value
                 scaleX = animateScale.value
                 scaleY = animateScale.value
@@ -221,42 +229,80 @@ private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
 private fun Modifier.swipeToDissmiss(
     onDismiss: ()->Unit
 ): Modifier = composed {
-    val offsetAnim = remember {
+    val offsetAnimX = remember {
         Animatable(0f)
     }
+    val offsetAnimY = remember {
+        Animatable(0f)
+    }
+    val scaleAnim = remember {
+        Animatable(1f)
+    }
+
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    val screenWidth = LocalDensity.current.run { screenWidthDp.dp.toPx() }
+
     pointerInput(Unit) {
         val decay = splineBasedDecay<Float>(this)
         coroutineScope {
+
             while (true) {
                 val velocityTracker = VelocityTracker()
                 awaitPointerEventScope {
-                    horizontalDrag(awaitFirstDown().id) { change ->
-                        val horizontalOffset = offsetAnim.value + change.positionChange().x
+                    drag(awaitFirstDown().id) { change ->
+                        val horizontalOffset = offsetAnimX.value + change.positionChange().x
+                        val verticalOffset = offsetAnimY.value + change.positionChange().y
                         launch {
-                            offsetAnim.snapTo(horizontalOffset)
+                            offsetAnimX.snapTo(horizontalOffset)
+                        }
+                        launch {
+                            offsetAnimY.snapTo(verticalOffset)
                         }
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
-
-                    }
-                    val velocity = velocityTracker.calculateVelocity().x
-                    val targetOffsetX = decay.calculateTargetValue(offsetAnim.value, velocity)
-                    launch {
-                        if (targetOffsetX.absoluteValue <= size.width) {
-                            offsetAnim.animateTo(targetValue = 0f)
-                        } else {
-                            offsetAnim.animateDecay(velocity, decay) {
-                            }
-                            offsetAnim.snapTo(0f)
-                            onDismiss()
-
+                        if (change.positionChange() != Offset.Zero) {
+                            change.consume()
                         }
+
                     }
 
+
+
+                    val velocity = velocityTracker.calculateVelocity().x
+                    val targetOffsetX = decay.calculateTargetValue(offsetAnimX.value, velocity)
+                  //  val targetOffsetY = decay.calculateTargetValue(offsetAnimY.value, velocity)
+                    //set animation bounds to screen width
+
+                   launch {
+                       if (targetOffsetX.absoluteValue <= size.width) {
+                           launch {
+                               offsetAnimX.animateTo(targetValue = 0f)
+                           }
+                           launch {
+                               offsetAnimY.animateTo(0f)
+                           }
+                       } else {
+                           val target = if (targetOffsetX > 0) size.width * 2f else -size.width * 2f
+                           offsetAnimX.animateTo(targetValue = target, animationSpec = tween(durationMillis = 200))
+                           onDismiss()
+                           listOf(
+                               launch {
+                                   offsetAnimX.snapTo(0f,)
+                               },
+                               launch {
+                                   offsetAnimY.snapTo(0f,)
+                               }
+                           ).joinAll()
+
+                       }
+                   }
                 }
             }
         }
     }.offset {
-        IntOffset(offsetAnim.value.roundToInt(), 0)
+        IntOffset(offsetAnimX.value.roundToInt(), offsetAnimY.value.roundToInt())
+    }. graphicsLayer {
+
     }
 }
 
