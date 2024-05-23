@@ -2,6 +2,7 @@ package com.example.composelearning.animation.carousel
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatSpringSpec
@@ -12,6 +13,7 @@ import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -66,11 +68,13 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.example.composelearning.R
 import com.example.composelearning.animation.CircularCarousel
 import com.example.composelearning.animation.book.width
 import kotlinx.coroutines.cancel
@@ -93,13 +97,16 @@ fun TripouselView(
           mutableStateOf(
               listOf<ItemData>(
                   ItemData(
-                      color = Color(0xff90caf9)
+                      color = Color(0xff90caf9),
+                      imagePath = R.drawable.cover_maga_f
                   ),
                   ItemData(
-                      color = Color(0xfffafafa)
+                      color = Color(0xfffafafa),
+                      imagePath = R.drawable.cover_mag_sec
                   ),
                   ItemData(
-                      color = Color(0xffef9a9a)
+                      color = Color(0xffef9a9a),
+                      imagePath = R.drawable.cover_mag_th
                   ),
               )
           )
@@ -128,7 +135,8 @@ fun TripouselView(
                                   .swipeToDissmiss {
                                       val itemData = ItemData(
                                           color = data.color,
-                                          id = data.id
+                                          id = data.id,
+                                          imagePath = data.imagePath
                                       )
                                       listOfCard.value = listOf(itemData) + (listOfCard.value - data)
                                   },
@@ -152,7 +160,8 @@ fun TripouselView(
 
 data class ItemData(
     val id: String = UUID.randomUUID().toString(),
-    val color: Color
+    val color: Color,
+    @DrawableRes val imagePath: Int
 )
 
 private fun getItemProperties(index: Int): Triple<Float, Float, Float> {
@@ -208,6 +217,7 @@ private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
                 animateOffset.value
             }
             .graphicsLayer {
+                cameraDistance = 12 * density
                 rotationZ = animateRotation.value
                 scaleX = animateScale.value
                 scaleY = animateScale.value
@@ -218,9 +228,10 @@ private fun ItemView(modifier: Modifier, data: ItemData, index: Int) {
             containerColor = data.color
         ),
         elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 8.dp
+            defaultElevation = 12.dp
         )
     ) {
+        Image(painter = painterResource(id = data.imagePath), contentDescription = "magazine image")
 
     }
 }
@@ -267,43 +278,48 @@ private fun Modifier.swipeToDissmiss(
                     }
 
 
-
                     val velocity = velocityTracker.calculateVelocity().x
                     val targetOffsetX = decay.calculateTargetValue(offsetAnimX.value, velocity)
-                  //  val targetOffsetY = decay.calculateTargetValue(offsetAnimY.value, velocity)
+                    //  val targetOffsetY = decay.calculateTargetValue(offsetAnimY.value, velocity)
                     //set animation bounds to screen width
 
-                   launch {
-                       if (targetOffsetX.absoluteValue <= size.width) {
-                           launch {
-                               offsetAnimX.animateTo(targetValue = 0f)
-                           }
-                           launch {
-                               offsetAnimY.animateTo(0f)
-                           }
-                       } else {
-                           val target = if (targetOffsetX > 0) size.width * 2f else -size.width * 2f
-                           offsetAnimX.animateTo(targetValue = target, animationSpec = tween(durationMillis = 200))
-                           onDismiss()
-                           listOf(
-                               launch {
-                                   offsetAnimX.snapTo(0f,)
-                               },
-                               launch {
-                                   offsetAnimY.snapTo(0f,)
-                               }
-                           ).joinAll()
+                    launch {
+                        if (targetOffsetX.absoluteValue <= size.width) {
+                            launch {
+                                offsetAnimX.animateTo(targetValue = 0f)
+                            }
+                            launch {
+                                offsetAnimY.animateTo(0f)
+                            }
+                        } else {
+                            val target =
+                                if (targetOffsetX > 0) size.width * 2f else -size.width * 2f
+                            offsetAnimX.animateTo(
+                                targetValue = target,
+                                animationSpec = tween(durationMillis = 200)
+                            )
+                            onDismiss()
+                            listOf(
+                                launch {
+                                    offsetAnimX.snapTo(0f,)
+                                },
+                                launch {
+                                    offsetAnimY.snapTo(0f,)
+                                }
+                            ).joinAll()
 
-                       }
-                   }
+                        }
+                    }
                 }
             }
         }
-    }.offset {
-        IntOffset(offsetAnimX.value.roundToInt(), offsetAnimY.value.roundToInt())
-    }. graphicsLayer {
-
     }
+        .offset {
+            IntOffset(offsetAnimX.value.roundToInt(), offsetAnimY.value.roundToInt())
+        }
+        .graphicsLayer {
+
+        }
 }
 
 @Preview (showSystemUi = true)
