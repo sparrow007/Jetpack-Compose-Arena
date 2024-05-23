@@ -67,6 +67,7 @@ import com.example.composelearning.animation.CircularCarousel
 import com.example.composelearning.animation.book.width
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import java.util.UUID
 import kotlin.math.PI
 import kotlin.math.absoluteValue
 import kotlin.math.atan2
@@ -78,13 +79,20 @@ import kotlin.math.sin
 fun TripouselView(
     modifier: Modifier = Modifier,
 ) {
+
     val listOfCard = remember {
         mutableStateOf(
-            arrayListOf(
-                Color(0xff90caf9),
-                Color(0xfffafafa),
-                Color(0xffef9a9a),
-            ).reversed()
+            listOf(
+                ItemData(
+                    color = Color(0xff90caf9)
+                ),
+                ItemData(
+                    color = Color(0xfffafafa)
+                ),
+                ItemData(
+                    color = Color(0xffef9a9a)
+                ),
+            )
         )
     }
     var properties by remember {
@@ -93,29 +101,36 @@ fun TripouselView(
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
 
-        listOfCard.value.forEachIndexed { index, color ->
-
-            ItemView(
-                color = color,
-                modifier = Modifier
-                    .offset {
-                        getItemOffset(index)
-                    }
-                    .graphicsLayer {
+        listOfCard.value.forEachIndexed { index, data ->
+            key(data.id) {
+                ItemView(
+                    color = data.color,
+                    modifier = Modifier
+                        .offset {
+                            getItemOffset(index)
+                        }
+                        .graphicsLayer {
 //                            rotationZ = getItemProperties(listOfCard.value.indexOf(color)).second
 //                            scaleX = getItemProperties(listOfCard.value.indexOf(color)).first
 //                            scaleY = getItemProperties(listOfCard.value.indexOf(color)).first
-                    }
-                    .swipeToDissmiss {
-                        listOfCard.value = listOf(color) + (listOfCard.value - color)
-                    }
-            )
+                        }
+                        .swipeToDissmiss {
+                            listOfCard.value = listOf(ItemData(color = data.color)) + (listOfCard.value - data)
+                            Log.e("TAG", "TripouselView: $listOfCard")
+                        }
+                )
+            }
 
         }
 
     }
 
 }
+
+data class ItemData(
+    val id: String = UUID.randomUUID().toString(),
+    val color: Color
+)
 
 private fun getItemProperties(index: Int): Triple<Float, Float, Float> {
     return when(index) {
@@ -190,8 +205,9 @@ private fun Modifier.swipeToDissmiss(
                             offsetAnim.animateTo(targetValue = 0f)
                         } else {
                             offsetAnim.animateDecay(velocity, decay) {
-                                onDismiss.invoke()
                             }
+
+                            onDismiss()
                         }
                     }
 
@@ -208,7 +224,9 @@ private fun Modifier.swipeToDissmiss(
 private fun ShowTripouselView() {
     MaterialTheme {
         Surface {
-           Box(modifier = Modifier.fillMaxSize()) {
+           Box(modifier = Modifier
+               .fillMaxSize()
+               .background(Color.Black)) {
                Column {
                    Spacer(modifier = Modifier.height(40.dp))
                    TripouselView()
