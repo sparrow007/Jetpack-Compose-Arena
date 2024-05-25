@@ -82,6 +82,7 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
             .graphicsLayer {
                 this.rotationY = rotationY
                 this.rotationZ = rotationZ
+                this.rotationX = rotationX
                 cameraDistance = 16f
                 ///  this.rotationY = rotationY
                 // this.shadowElevation = 10f
@@ -108,7 +109,7 @@ fun ViewRoatation(modifier: Modifier = Modifier, rotationX: Float, rotationY: Fl
 @Composable
 fun ShowSliderToExperiment() {
     var rotationY by remember { mutableStateOf(0f) }
-    val rotationX = remember { Animatable(0f) }
+    var rotationX by remember { mutableStateOf(0f) }
     var rotationZ by remember { mutableStateOf(0f) }
     var cameraDistance by remember { mutableStateOf(0f) }
     var isPressed by remember {
@@ -130,9 +131,9 @@ fun ShowSliderToExperiment() {
                            // rotationX = 20f
                            // rotationY = 0f
                             launch {
-                                rotationX.animateTo(20f,
-                                    animationSpec = tween(animationTime)
-                                )
+//                                rotationX.animateTo(20f,
+//                                    animationSpec = tween(animationTime)
+//                                )
                             }
                             launch {
                                 scale.animateTo(0.8f, animationSpec = tween(animationTime))
@@ -149,7 +150,7 @@ fun ShowSliderToExperiment() {
                             }
 
                             launch {
-                                rotationX.animateTo(0f, animationSpec = tween(animationTime))
+                              //  rotationX.animateTo(0f, animationSpec = tween(animationTime))
                             }
                             //rotationX = 0f
                            // rotationY = 0f
@@ -159,7 +160,7 @@ fun ShowSliderToExperiment() {
                     }
                 )
             }
-                , rotationX.value, rotationY, rotationZ, scale.value, isPressed)
+                , rotationX, rotationY, rotationZ, scale.value, isPressed)
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -173,7 +174,12 @@ fun ShowSliderToExperiment() {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Slider(value = rotationY, onValueChange = { it ->  },  valueRange = -360f..360f)
+            Column {
+                Slider(value = rotationX, onValueChange = { it -> rotationX = it  },  valueRange = -360f..360f)
+                Text(text = "Rotation X: $rotationX")
+            }
+
+
             Spacer(modifier = Modifier.height(10.dp))
 
             Slider(value = rotationZ, onValueChange = { it -> rotationZ = it },  valueRange = -360f..360f)
