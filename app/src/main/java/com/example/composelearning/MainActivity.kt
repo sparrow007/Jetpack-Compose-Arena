@@ -29,6 +29,7 @@ import com.example.composelearning.animation.ShowSliderToExperiment
 import com.example.composelearning.animation.SwipeableCards
 import com.example.composelearning.animation.book.BookComposeView
 import com.example.composelearning.animation.book.ShowCarouselLayoutView
+import com.example.composelearning.animation.carousel.magazine.MagazineAppHome
 import com.example.composelearning.animation.colorswaft.ColorSwitchLayoutPreview
 import com.example.composelearning.selector.SelectorDiffcultyLayout
 import com.example.composelearning.ui.theme.ComposeLearningTheme
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        ColorSwitchLayoutPreview()
+                        MagazineAppHome()
                     }
                 }
             }

@@ -63,6 +63,19 @@ import kotlin.math.absoluteValue
 import kotlin.math.min
 import kotlin.math.roundToInt
 
+/****
+ * Create a custom layout to support the stack based layout in compose
+ */
+
+
+
+@Preview
+@Composable
+fun ShowCardInStackPreview() {
+   MaterialTheme {
+       ShowCardInStack()
+   }
+}
 @Composable
 private fun ShowCardInStack(
 ) {
@@ -182,15 +195,4 @@ private fun CardWithColors(modifier: Modifier,color: Color) {
             }
         }
     }
-}
-
-//create scrollable modifier for card list
-
-
-@Preview
-@Composable
-fun ShowCardInStackPreview() {
-   MaterialTheme {
-       ShowCardInStack()
-   }
 }
