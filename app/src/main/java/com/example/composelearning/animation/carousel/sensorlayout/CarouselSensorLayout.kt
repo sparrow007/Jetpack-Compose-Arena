@@ -65,8 +65,8 @@ import kotlin.math.roundToInt
 
 /****
  * Create a custom layout to support the stack based layout in compose
+ * lEARNING THE LAZY LAYOUT
  */
-
 
 
 @Preview
