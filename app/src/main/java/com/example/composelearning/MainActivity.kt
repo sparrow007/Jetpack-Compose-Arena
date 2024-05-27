@@ -57,9 +57,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        actionBar?.hide()
-        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
+//        actionBar?.hide()
+//        window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
     }
 }
 
