@@ -49,11 +49,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composelearning.ui.theme.fontFamily
@@ -66,6 +69,33 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun Modifier.CustomBaslineTop = layout { meas
+fun Modifier.CustomBaslineTop(
+    firstBaseLlineToTop: Dp
+) = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+
+    check(placeable[FirstBaseline] != AlignmentLine.Unspecified)
+
+    val firstBaseLline = placeable[FirstBaseline]
+
+    val placeableY = firstBaseLlineToTop.roundToPx() - firstBaseLline
+
+    val height = placeable.height + placeableY
+    layout(placeable.width, height) {
+        placeable.placeRelative(0, placeableY)
+    }
+}
+
+@Composable
+@Preview
+fun ShowBaselinePreview() {
+    MaterialTheme {
+      Text(text = "This is greate", modifier = Modifier.CustomBaslineTop(24.dp))
+    }
+}
+
+@Preview
+@Composable
+fun ShowTopPadingPreview() {
 
 }
