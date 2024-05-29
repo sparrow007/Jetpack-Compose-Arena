@@ -97,5 +97,7 @@ fun ShowBaselinePreview() {
 @Preview
 @Composable
 fun ShowTopPadingPreview() {
-
+    MaterialTheme {
+        Text(text = "This is greate", modifier = Modifier.padding(top = 24.dp))
+    }
 }
