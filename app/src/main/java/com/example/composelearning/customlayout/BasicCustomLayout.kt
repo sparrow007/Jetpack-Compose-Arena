@@ -66,6 +66,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Basic layout functions need to check and how they works internally
+ * Learning Phase for custom lazy layout
+ *
  */
 
 @Composable
