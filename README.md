@@ -13,12 +13,20 @@ This project helped us learn how to use jetpack composes to build complex layout
   <img align="center" src="https://github.com/sparrow007/Jetpack-Compose-Arena/assets/22986571/79f321a2-a1fc-4243-a6ea-484f231d6914" />
 </p>
 
+| Implementation | |
+|:-----|---------|
+Book Flip Animation | Custom Color Swatch Animation |
+| <p align="center">  <img align = "center" src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p> | <p align="center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/> </p> | |
+| | | 
+| Property infinite and 3D on Item enabled |Property infinite and alpha on Item enabled |
+| <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> | <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="330" height = "580"/> | |
+
 🧬 Implmentation
 ------------
 
 | Layout And Interactions | |
 |:-----|---------|
-|  <br><img src="readme/jetnews.png" alt="JetNews" width="240"></img> <br><br> A sample blog post viewer that demonstrates the use of Compose with a typical Material app and real-world architecture. <br><br> • Medium complexity<br>• Varied UI<br>• Light & dark themes<br>• Resource loading<br>• UI Testing <br><br> **[> Browse](JetNews/)**<br><br> | <img src="readme/screenshots/JetNews.png" width="320" alt="Jetnews sample demo"> |
+| ![book_compose_animation](https://github.com/sparooioirow007/Jetpack-Compose-Arena/assets/22986571/ca6337db-1d90-4392-a848-eb73f3193bfc) | A sample blog post viewer that demonstrates the use of Compose with a typical Material app and real-world architecture. |  |
 |  |  |
 |  <br><img src="readme/jetchat.png" alt="Jetchat" width="240"></img> <br><br>A sample chat app that focuses on UI state patterns and text input.<br><br>• Low complexity<br>• Material Design 3 theme and Material You dynamic color<br>• Resource loading<br>• Back button handling<br>• Integration with Architecture Components: Navigation, Fragments, LiveData, ViewModel<br>• Animation<br>• UI Testing<br><br>**[> Browse](Jetchat/)** <br><br> | <img src="readme/screenshots/Jetchat.png" width="320" alt="Jetchat sample demo">|
 |  |  |
