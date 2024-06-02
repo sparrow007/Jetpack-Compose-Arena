@@ -6,11 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.pm.ShortcutInfoCompat.Surface
+import kotlin.random.Random
 
 /**
  * Basic setup for the canvas to show and provide multiple functions
@@ -23,6 +21,21 @@ fun MathCanvas() {
         modifier = Modifier
             .fillMaxSize()
             .drawBehind {
+                for (i in 0..100 step 1) {
+                    drawLine(
+                        color = Color.Blue,
+                        start = Offset(
+                            Random.nextFloat() * size.width,
+                            Random.nextFloat() * size.height
+                        ),
+                        end = Offset(
+                            Random.nextFloat() * size.width,
+                            Random.nextFloat() * size.height
+                        ),
+                        strokeWidth = 2f
+                    )
+                }
+
                 drawCircle(color = Color.Red, radius = 100f)
             }
     )
