@@ -64,3 +64,18 @@ fun MathCanvasSinWave() {
             })
         })
 }
+
+@Composable
+@Preview
+fun MathCanvasOsicaltionWave() {
+    Spacer(modifier = Modifier
+        .fillMaxSize()
+        .drawBehind {
+            withTransform({
+                this.translate(0f, -size.height / 2f)
+                this.scale(1f, -1f)
+            }, {
+
+            })
+        })
+}
