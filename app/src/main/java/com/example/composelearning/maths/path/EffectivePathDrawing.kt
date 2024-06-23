@@ -30,9 +30,15 @@ fun CreateNormalPath() {
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val path = Path()
-        path.moveTo(0f, 0f)
-        path.lineTo(size.width / 2f, size.height / 2f)
-        path.lineTo(size.width.toFloat(), 0f)
+        path.moveTo(75f, 75f)
+
+
+        path.quadraticBezierTo(
+            25f,
+            225f,
+            450f,
+            0f
+        )
 
         //Create the path for the cubic and quad to test out the different parts
 
