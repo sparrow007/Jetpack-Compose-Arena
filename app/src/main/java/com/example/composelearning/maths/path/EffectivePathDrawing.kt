@@ -34,6 +34,9 @@ fun CreateNormalPath() {
         path.lineTo(size.width / 2f, size.height / 2f)
         path.lineTo(size.width.toFloat(), 0f)
 
+        //Create the path for the cubic and quad to test out the different parts
+
+
 
         drawPath(path, Color.Green, style = Stroke(width = 10f))
 
