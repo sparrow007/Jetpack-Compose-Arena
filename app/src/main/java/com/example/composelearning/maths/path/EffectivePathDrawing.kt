@@ -12,39 +12,25 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun CreateNormalPath() {
-//
-//    Spacer(
-//        modifier = Modifier
-//            .drawWithCache {
-//                val path = Path()
-//                path.moveTo(0f, 0f)
-//                path.lineTo(size.width / 2f, size.height / 2f)
-//                // path.lineTo(size.width, 0f)
-//                // path.close()
-//                onDrawBehind {
-//                    drawPath(path, Color.Magenta, style = Stroke(width = 10f))
-//                }
-//            }
-//            .fillMaxSize()
-//    )
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val path = Path()
-        path.moveTo(75f, 75f)
 
-
-        path.quadraticBezierTo(
-            25f,
-            225f,
-            450f,
-            0f
+        val wave = WaveLayer(
+            waveCenterY = 200f,
+            waveHorRadius = 100f,
+            waveVertRadius = 100f,
+            sideWidth = 100f,
+            swipeDirection = 1
         )
+        wave.updatePath(this.size.width, this.size.height)
+        path.addPath(wave.path)
 
         //Create the path for the cubic and quad to test out the different parts
 
 
 
-        drawPath(path, Color.Green, style = Stroke(width = 10f))
+        drawPath(wave.path, Color.Green, style = Stroke(width = 10f))
 
     }
 
