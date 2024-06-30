@@ -17,10 +17,10 @@ fun CreateNormalPath() {
         val path = Path()
 
         val wave = WaveLayer(
-            waveCenterY = 200f,
-            waveHorRadius = 100f,
-            waveVertRadius = 100f,
-            sideWidth = 100f,
+            waveCenterY = size.height * .7f,
+            waveHorRadius = 200f,
+            waveVertRadius = 200f,
+            sideWidth = 70f,
             swipeDirection = 1
         )
         wave.updatePath(this.size.width, this.size.height)

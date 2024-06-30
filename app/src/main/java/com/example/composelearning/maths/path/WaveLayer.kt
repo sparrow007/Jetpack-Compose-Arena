@@ -14,7 +14,7 @@ internal class WaveLayer(
     fun updatePath(width: Float, height: Float) {
         path = Path()
         val maskWidth = width - sideWidth
-        path.moveTo(maskWidth - sideWidth, 0f)
+        path.moveTo(maskWidth, 0f)
         path.lineTo(width, 0f)
         path.lineTo(width, height)
         path.lineTo(maskWidth, height)
@@ -105,7 +105,7 @@ internal class WaveLayer(
         )
 
         path.lineTo(maskWidth, 0f)
-        path.lineTo(maskWidth - sideWidth, 0f)
-        path.close()
+        //  path.lineTo(maskWidth - sideWidth, 0f)
+        //path.close()
     }
 }
