@@ -15,22 +15,10 @@ fun CreateNormalPath() {
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val path = Path()
-
-        val wave = WaveLayer(
-            waveCenterY = size.height * .7f,
-            waveHorRadius = 200f,
-            waveVertRadius = 200f,
-            sideWidth = 70f,
-            swipeDirection = 1
-        )
-        wave.updatePath(this.size.width, this.size.height)
-        path.addPath(wave.path)
-
-        //Create the path for the cubic and quad to test out the different parts
-
-
-
-        drawPath(wave.path, Color.Green, style = Stroke(width = 10f))
+        path.moveTo(0f, 150f)
+        path.lineTo(0f, 150f)
+        path.quadraticBezierTo(size.width / 2, 150f, size.width, 150f)
+        this.drawPath(path, Color.Blue, style = Stroke(5f))
 
     }
 
