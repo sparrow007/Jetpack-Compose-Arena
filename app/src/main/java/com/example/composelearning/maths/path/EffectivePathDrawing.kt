@@ -2,7 +2,6 @@ package com.example.composelearning.maths.path
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
@@ -29,8 +28,6 @@ fun CreateNormalPath() {
     var animState by remember {
         mutableStateOf(150f)
     }
-
-    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
     val scale = animateFloatAsState(
         targetValue =
         if (animState == 150f) 80f else 150f,
