@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,17 +39,27 @@ fun CreateNormalPath() {
             .fillMaxWidth()
             .wrapContentHeight()) {
             val path = Path()
-            path.moveTo(0f, 150f)
-            //path.lineTo(0f, 150f)
-            path.quadraticBezierTo(size.width / 2, scale.value, size.width, 150f)
-            this.drawPath(path, Color.Blue, style = Stroke(5f))
+//            path.moveTo(0f, 150f)
+//            //path.lineTo(0f, 150f)
+//            path.quadraticBezierTo(size.width / 2, scale.value, size.width, 150f)
+//            this.drawPath(path, Color.Blue, style = Stroke(5f))
+
+
+            //Stretching path with quadraticBezierTo
+            path.reset()
+            path.moveTo(0f, 200f)
+            path.lineTo(0f, 200f)
+            path.quadraticBezierTo(size.width / 2, 150f, size.width, 200f)
+            drawPath(path, Color.Blue, style = Stroke(5f))
+
+
         }
 
-        Button(onClick = {
-            animState = if (animState == 150f) 80f else 150f
-        }) {
-            Text(text = "Animate")
-        }
+//        Button(onClick = {
+//            animState = if (animState == 150f) 80f else 150f
+//        }) {
+//            Text(text = "Animate")
+//        }
 
     }
 
