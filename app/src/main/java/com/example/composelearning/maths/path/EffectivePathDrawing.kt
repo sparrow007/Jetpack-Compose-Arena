@@ -52,6 +52,20 @@ fun CreateNormalPath() {
             path.quadraticBezierTo(size.width / 2, 150f, size.width, 200f)
             drawPath(path, Color.Blue, style = Stroke(5f))
 
+            path.reset()
+            path.moveTo(0f, 400f)
+            path.lineTo(0f, 400f)
+            path.quadraticBezierTo(size.width / 2, 350f, size.width, 400f)
+            drawPath(path, Color.Red, style = Stroke(5f))
+
+
+            //draw an gooey effect using path
+            path.reset()
+            path.moveTo(size.width / 2f, 370f)
+
+
+            path.quadraticBezierTo(size.width / 2, 550f, size.width, 600f)
+            drawPath(path, Color.Green, style = Stroke(5f))
 
         }
 
