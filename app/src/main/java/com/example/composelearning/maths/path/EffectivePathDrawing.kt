@@ -49,6 +49,11 @@ fun CreateNormalPath() {
 
             val path = Path()
             path.reset()
+            path.moveTo(0f, size.height / 2f)
+            path.lineTo(size.width / 2f - 150f, size.height / 2f)
+
+
+
             if (controlPoint.x == 0f && controlPoint.y == 0f) {
                 controlPoint = PointF(size.width / 2f - 250f, size.height / 2f - 150f)
             }
@@ -66,7 +71,7 @@ fun CreateNormalPath() {
                 controlPoint2.x, controlPoint2.y,
                 point2.x, point2.y
             )
-
+            path.lineTo(size.width, size.height / 2f)
 
             drawPath(
                 path = path,
