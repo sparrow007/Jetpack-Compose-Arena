@@ -15,26 +15,28 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import kotlin.math.atan
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 @Composable
 @Preview
 fun QQMessageEffect() {
 
     val startPoint = remember {
-        PointF(100f, 100f)
+        PointF(0f, 0f)
     }
 
     val endPoint = remember {
-        mutableStateOf(PointF(300f, 300f))
+        mutableStateOf(PointF(0f, 0f))
     }
 
-    val mRadius = 50f
+    var mRadius = 90f
 
     Canvas(modifier = Modifier
         .fillMaxSize()
         .pointerInput(Unit) {
-            detectDragGestures { change, dragAmount ->
+            detectDragGestures { _, dragAmount ->
                 endPoint.value = PointF(
                     endPoint.value.x + dragAmount.x,
                     endPoint.value.y + dragAmount.y
@@ -42,12 +44,30 @@ fun QQMessageEffect() {
             }
         }
     ) {
-        val path = calculateQQMessagePath(startPoint, endPoint.value, mRadius)
+
+        if (startPoint.x == 0f && startPoint.y == 0f) {
+            startPoint.x = size.width / 2f
+            startPoint.y = size.height / 2f
+        }
+
+        if (endPoint.value.x == 0f && endPoint.value.y == 0f) {
+            endPoint.value.x = size.width / 2f + 200f
+            endPoint.value.y = size.height / 2f + 200f
+        }
+
+        val circleDistance = sqrt(
+            (startPoint.x - endPoint.value.x).toDouble().pow(2) +
+                    (startPoint.y - endPoint.value.y).toDouble().pow(2)
+        )
+
+        val radius = (50f - circleDistance / 20).toFloat()
+
+        val path = calculateQQMessagePath(startPoint, endPoint.value, radius)
 
         drawCircle(
             color = Color.Red,
             center = Offset(startPoint.x, startPoint.y),
-            radius = mRadius
+            radius = radius
         )
         drawCircle(
             color = Color.Red,
@@ -56,6 +76,7 @@ fun QQMessageEffect() {
         )
         drawPath(path, Color.Red)
     }
+
 }
 
 fun calculateQQMessagePath(startPoint: PointF, endPoint: PointF, mRadius: Float): Path {
