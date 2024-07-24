@@ -1,25 +1,35 @@
 package com.example.composelearning.maths.path
 
-import android.graphics.Paint
-import android.graphics.Picture
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.example.composelearning.maths.path.graph.getGraphPath
 
 @Composable
 @Preview
 fun CubicAnalyze() {
+    val path = getGraphPath(windowSize = getScreenDimensions())
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val picture = Picture()
-        val paint = Paint()
-        val canvas = picture.beginRecording(size.width.toInt(), size.height.toInt())
-        canvas.drawCircle(100f, 100f, 50f, android.graphics.Paint())
-        this.drawIntoCanvas {
-            it.nativeCanvas.drawPicture(picture)
-        }
+        //Let's create a graph in the canvas
+        val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+        val stroke = Stroke(width = 1f, pathEffect = pathEffect)
+        this.drawPath(path, color = Color.White, style = stroke)
+
     }
 }
+
+@Composable
+fun getScreenDimensions(): Pair<Dp, Dp> {
+    val configuration = LocalConfiguration.current
+    return Pair(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
+}
+
+
