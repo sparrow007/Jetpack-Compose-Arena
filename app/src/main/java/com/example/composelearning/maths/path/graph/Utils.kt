@@ -29,3 +29,25 @@ fun getGraphPath(graphLines: Int = 40, windowSize: Pair<Dp, Dp>): Path {
 
     return path
 }
+
+@Composable
+fun getCoordinatePath(x: Float = 500f, y: Float = 500f, windowSize: Pair<Dp, Dp>): Path {
+    val path = Path()
+
+    val (width, height) = windowSize
+    val widthInPixel = LocalDensity.current.run { width.toPx() }
+    val heightInPixel = LocalDensity.current.run { height.toPx() }
+
+    path.moveTo(x, y)
+
+    path.lineTo(widthInPixel, y)
+    path.moveTo(x, y)
+    path.lineTo(x - widthInPixel, y)
+    path.moveTo(x, y)
+    path.lineTo(x, heightInPixel)
+    path.moveTo(x, y)
+    path.lineTo(x, y - heightInPixel)
+
+
+    return path
+}
