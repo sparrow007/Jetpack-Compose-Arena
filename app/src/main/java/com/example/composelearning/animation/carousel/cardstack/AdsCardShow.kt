@@ -1,5 +1,7 @@
 package com.example.composelearning.animation.carousel.cardstack
 
+import android.annotation.SuppressLint
+import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -13,7 +15,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,21 +39,47 @@ import kotlinx.coroutines.launch
 @Composable
 @Preview
 fun AdsCardShow() {
+    val rotationAnimation = remember {
+        Animatable(-10f)
+    }
+    val scope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
-            .fillMaxSize(), contentAlignment = Alignment.Center
+            .fillMaxSize()
+            .onLayoutTouch {
+                if (it) {
+                    scope.launch {
+                        rotationAnimation.animateTo(
+                            10f, spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
+                    }
+                } else {
+                    scope.launch {
+                        rotationAnimation.animateTo(
+                            -10f, spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        )
+                    }
+                    Log.e("TAG", "AdsCardShow: Released")
+                }
+            }, contentAlignment = Alignment.Center
     ) {
 
         val elements = 4
 
         for (i in 0 until elements) {
-            CardsView(
+            Card(
                 modifier = Modifier
-                    .cardLongClick(i, elements)
                     .graphicsLayer {
                         cameraDistance = 12 * density
                         transformOrigin = TransformOrigin(1f, 1f)
-                        rotationZ = ((elements - (i + 1)) * (-10)).toFloat()
+                        rotationZ = ((elements - (i + 1)) * (rotationAnimation.value)).toFloat()
                     }
                     .offset {
                         val position = (elements - (i + 1)) * 20
@@ -59,13 +87,55 @@ fun AdsCardShow() {
                             ((elements - (i + 1)) * 30),
                             -position
                         )
-                    }
-            )
+                    },
+                shape = RoundedCornerShape(12.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(170.dp)
+                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+                ) {
+                }
+            }
         }
     }
-
 }
 
+@SuppressLint("UnnecessaryComposedModifier", "ReturnFromAwaitPointerEventScope")
+fun Modifier.onLayoutTouch(isPressed: (Boolean) -> Unit) = composed {
+    val scope = rememberCoroutineScope()
+    pointerInput(null) {
+        scope.launch {
+            awaitPointerEventScope {
+                while (true) {
+                    val pointerEvent = this.awaitPointerEvent()
+
+                    when (pointerEvent.type) {
+                        PointerEventType.Press -> {
+                            // User has pressed the button
+                            isPressed(true)
+                            Log.e("TAG", "onLayoutTouch: Press")
+                        }
+
+                        PointerEventType.Release -> {
+                            // User is no longer pressing the button
+                            isPressed(false)
+                            Log.e("TAG", "onLayoutTouch: Release")
+                        }
+
+                        else -> {
+                            // Handle other
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.cardLongClick(position: Int, totalSize: Int) = composed {
     val xPosition = remember {
@@ -158,16 +228,16 @@ fun Modifier.cardLongClick(position: Int, totalSize: Int) = composed {
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CardsView(modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .width(120.dp)
-            .height(170.dp)
-            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
-        onClick = { /*TODO*/ }) {
-
-
-    }
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun CardsView(modifier: Modifier = Modifier) {
+//    Card(
+//        modifier = modifier
+//            .width(120.dp)
+//            .height(170.dp)
+//            .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
+//        onClick = { /*TODO*/ }) {
+//
+//
+//    }
+//}
