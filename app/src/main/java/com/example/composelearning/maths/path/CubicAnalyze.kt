@@ -16,12 +16,14 @@ import com.example.composelearning.maths.path.graph.getGraphPath
 @Composable
 @Preview
 fun CubicAnalyze() {
-    val path = getGraphPath(windowSize = getScreenDimensions())
+    val path = getGraphPath(30, windowSize = getScreenDimensions())
+    
     Canvas(modifier = Modifier.fillMaxSize()) {
         //Let's create a graph in the canvas
         val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
         val stroke = Stroke(width = 1f, pathEffect = pathEffect)
-        this.drawPath(path, color = Color.White, style = stroke)
+        this.drawPath(path, color = Color.Black, style = stroke)
+
 
     }
 }
