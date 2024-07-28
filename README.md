@@ -25,23 +25,28 @@ project from Android Studio following the steps
 
 🧬 Animations
 ------------
-<p align="center">
-
-  
-| Implementation                                                                                                                                      |                                                                                                                                                       |
-|:----------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Book Flip Animation                                                                                                                                 | Custom Color Swatch Animation                                                                                                                         |
-|           | <p align = "center"> <img src="./preview/magazine_app-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p>         | |
-|                                                                                                                                                     |                                                                                                                                                       | 
-| Property infinite and 3D on Item enabled                                                                                                            | Property infinite and alpha on Item enabled                                                                                                    |
-| <a href="https://github.com/snehilrx"><p align="center"> <img src="./preview/flip_rotate_animation-ezgif.com-video-to-gif-converter.gif" align="center" width="230" height = "480"/> </p></a>
-  |        <p align="center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/> </p>                      | |
-| Card Interaction UI                |  | Empty |
-| <p align="center">  <img align = "center" src="./preview/horizontal_card_click.gif" align="center" width="350" height = "480"/> </p>  | 
-</p>
-
-<a href="https://github.com/snehilrx"><p align="center"> <img src="./preview/flip_rotate_animation-ezgif.com-video-to-gif-converter.gif" align="center" width="230" height = "480"/> </p></
-
+ <table>
+        <tr>
+            <td>Card Stack Animation</td>
+            <td>Card Flip Animation</td>
+            <td>Book Open Animation</td>
+        </tr>
+        <tr>
+           <td><p align = "center"> <img src="./preview/magazine_app-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p></td>
+            <td><p align="center"> <img src="./preview/flip_rotate_animation-ezgif.com-video-to-gif-converter.gif" align="center" width="230" height = "480"/> </p></td>
+           <td><p align="center"> <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p></td>
+        </tr>
+       <tr>
+            <td>Color Swatch Animation</td>
+            <td>Book Open Animation</td>
+            <td>Card Stack Touch Animation</td>
+        </tr>
+       <tr>
+           <td><p align = "center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p>"</td>
+          <td><p align="center"> <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p></td>
+            <td><p align="center"> <img src="./preview/horizontal_card_click.gif" align="center" width="230" height = "480"/> </p></td>
+        </tr>
+  </table>
 
 ## Contribute 🤝
 If you like the project and somehow wants to contribute, you are welcome to contribute by either submitting issues, refactor, pull request Thankyou.  
