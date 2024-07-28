@@ -26,9 +26,11 @@ project from Android Studio following the steps
 ------------
  <table>
         <tr>
-            <td>Card Stack Animation</td>
-            <td>Card Flip Animation</td>
-            <td>Book Open Animation</td>
+            <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/carousel/magazine/MagazineApp.kt#L1">Card Stack Swipe Animation</a></td>
+            <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/SwipeDragComposable.kt#L1">Card Stack Flip Animation</a>
+</td>
+            <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/book/BookComposeVIew.kt#L1">Book Open Animation</a>
+</td>
         </tr>
         <tr>
            <td><p align = "center"> <img src="./preview/magazine_app-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p></td>
@@ -36,13 +38,13 @@ project from Android Studio following the steps
            <td><p align="center"> <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p></td>
         </tr>
        <tr>
-            <td>Color Swatch Animation</td>
-            <td>Book Open Animation</td>
-            <td>Card Stack Spin Animation</td>
+            <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/colorswaft/ColorSwaftComposable.kt#L1">Card Stack Spin Animation</a>
+</td>
+            <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/carousel/cardstack/AdsCardShow.kt#L1">Card Stack Spin Animation</a>
+</td>
         </tr>
        <tr>
            <td><p align = "center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p></td>
-          <td><p align="center"> <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p></td>
             <td><p align="center"> <img src="./preview/stacked_card_spin.gif" align="center" width="230" height = "480"/> </p></td>
         </tr>
   </table>
