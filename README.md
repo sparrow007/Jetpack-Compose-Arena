@@ -22,7 +22,6 @@ project from Android Studio following the steps
 [here](https://developer.android.com/jetpack/compose/setup#sample).
 
 
-
 🧬 Animations
 ------------
  <table>
@@ -42,7 +41,7 @@ project from Android Studio following the steps
             <td>Card Stack Touch Animation</td>
         </tr>
        <tr>
-           <td><p align = "center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p>"</td>
+           <td><p align = "center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p></td>
           <td><p align="center"> <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p></td>
             <td><p align="center"> <img src="./preview/horizontal_card_click.gif" align="center" width="230" height = "480"/> </p></td>
         </tr>
