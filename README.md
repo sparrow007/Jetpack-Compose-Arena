@@ -38,12 +38,12 @@ project from Android Studio following the steps
        <tr>
             <td>Color Swatch Animation</td>
             <td>Book Open Animation</td>
-            <td>Card Stack Touch Animation</td>
+            <td>Card Stack Spin Animation</td>
         </tr>
        <tr>
            <td><p align = "center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p></td>
           <td><p align="center"> <img src="./preview/book_compose_animation.gif" align="center" width="230" height = "480"/> </p></td>
-            <td><p align="center"> <img src="./preview/horizontal_card_click.gif" align="center" width="230" height = "480"/> </p></td>
+            <td><p align="center"> <img src="./preview/stacked_card_spin.gif" align="center" width="230" height = "480"/> </p></td>
         </tr>
   </table>
 
