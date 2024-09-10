@@ -2,6 +2,7 @@ package com.example.composelearning.animation.carousel
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,12 +26,18 @@ import androidx.compose.ui.zIndex
 @Composable
 fun StackCard(colorList: List<Color>, size: Int) {
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Black),
+        contentAlignment = Alignment.Center
+    ) {
         colorList.forEachIndexed { index, color ->
             val density = LocalDensity.current
-            val yOffset = with(density) {
+            var yOffset = with(density) {
                 (size - (size - index) * 140).toDp()
             }
+
             //you can use linear interpolation to create scalable value range for 0 to 1
             val scale = 1f - (size - index) * 0.05f
             ShowCards(modifier = Modifier
@@ -39,12 +46,16 @@ fun StackCard(colorList: List<Color>, size: Int) {
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                    //rotationX = if (index == size - 1) -27f else 0f
-                    //shadowElevation = (index * 20f)
+                    rotationX = -(index * 3f)
+                    spotShadowColor = Color.White
+                    ambientShadowColor = Color.Gray
+                    cameraDistance = 5f
                 }
                 .zIndex(index.toFloat()) // Add this line
-                , color = color, index
+                , color = color, index = index
             )
+
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -52,7 +63,7 @@ fun StackCard(colorList: List<Color>, size: Int) {
 @Composable
 fun ShowCards(modifier: Modifier, color: Color, index: Int) {
     val elevation = with(LocalDensity.current) {
-        (index * 20).toDp()
+        (index * 100).toDp()
     }
     Card(
         colors = CardDefaults.cardColors(containerColor = color),
@@ -93,10 +104,10 @@ fun ShowCardsShadow(modifier: Modifier, color: Color, index: Int) {
 
 fun ShowVerticalCardStack() {
     val list = listOf<Color>(
-        Color(0xFF64B5F6),
-        Color(0xFFFFD54F),
-        Color(0xFF9575CD),
-        Color(0xFF4DB6AC)
+        Color(0xFF99CDF7),
+        Color(0xFFFAE294),
+        Color(0xFFBA98F7),
+        Color(0xFF83F7EC)
     )
     StackCard(list, list.size)
 }
