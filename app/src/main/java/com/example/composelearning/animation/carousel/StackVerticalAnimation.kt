@@ -1,6 +1,13 @@
 package com.example.composelearning.animation.carousel
 
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,19 +19,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun StackCard(colorList: List<Color>, size: Int) {
+
+    val offsetYAnimation = remember {
+        Animatable(30f)
+    }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
         modifier = Modifier
@@ -34,28 +54,68 @@ fun StackCard(colorList: List<Color>, size: Int) {
     ) {
         colorList.forEachIndexed { index, color ->
             val density = LocalDensity.current
-            var yOffset = with(density) {
-                (size - (size - index) * 140).toDp()
-            }
-
+            val yOffset = ((size - (size - index)) * offsetYAnimation.value)
             //you can use linear interpolation to create scalable value range for 0 to 1
             val scale = 1f - (size - index) * 0.05f
             ShowCards(modifier = Modifier
                 .size(180.dp, 230.dp)
-                .offset(y = yOffset)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                    rotationX = -(index * 3f)
-                    spotShadowColor = Color.White
-                    ambientShadowColor = Color.Gray
-                    cameraDistance = 5f
+                    translationY = yOffset
                 }
-                .zIndex(index.toFloat()) // Add this line
+                .userDragAction {
+                    Log.e("MY TAG", "StackCard: ${offsetYAnimation.value - it}")
+                    coroutineScope.launch {
+                        offsetYAnimation.animateTo(offsetYAnimation.value + it)
+                    }
+                }
                 , color = color, index = index
             )
 
             Spacer(modifier = Modifier.height(40.dp))
+        }
+    }
+}
+
+/**
+ * .offset(y = yOffset)
+ *                 .graphicsLayer {
+ *                     scaleX = scale
+ *                     scaleY = scale
+ *                     rotationX = -(index * 3f)
+ *                     spotShadowColor = Color.White
+ *                     ambientShadowColor = Color.Gray
+ *                     cameraDistance = 5f
+ *                 }
+ */
+
+@SuppressLint("ModifierFactoryUnreferencedReceiver", "UnnecessaryComposedModifier")
+fun Modifier.userDragAction(onUserDrag: (dragValue: Float) -> Unit): Modifier = composed {
+    val offsetY = remember {
+        Animatable(30f)
+    }
+    pointerInput(Unit) {
+        val splineDecay = splineBasedDecay<Float>(this)
+        coroutineScope {
+            while (true) {
+                val velocityTracker = VelocityTracker()
+                awaitPointerEventScope {
+                    verticalDrag(this.awaitFirstDown().id) { change ->
+                        val targetOffset = change.positionChange().y
+
+                        velocityTracker.addPosition(change.uptimeMillis, change.position)
+                        if (change.positionChange() != Offset.Zero) change.consume()
+
+                        onUserDrag(targetOffset)
+
+                        val velocity = velocityTracker.calculateVelocity().y
+                        val targetOffsetY =
+                            splineDecay.calculateTargetValue(offsetY.value, velocity)
+
+                    }
+                }
+            }
         }
     }
 }
