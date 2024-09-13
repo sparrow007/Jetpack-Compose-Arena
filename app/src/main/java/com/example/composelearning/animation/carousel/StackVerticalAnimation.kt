@@ -3,6 +3,8 @@ package com.example.composelearning.animation.carousel
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FloatSpringSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.background
@@ -33,9 +35,11 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 @Composable
 fun StackCard(colorList: List<Color>, size: Int) {
@@ -43,6 +47,8 @@ fun StackCard(colorList: List<Color>, size: Int) {
     val offsetYAnimation = remember {
         Animatable(30f)
     }
+    val splineDecay = splineBasedDecay<Float>(LocalDensity.current) // Create a spline decay
+
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -59,16 +65,45 @@ fun StackCard(colorList: List<Color>, size: Int) {
             val scale = 1f - (size - index) * 0.05f
             ShowCards(modifier = Modifier
                 .size(180.dp, 230.dp)
+                .userDragAction({ offset ->
+                    coroutineScope.launch {
+                        offsetYAnimation.snapTo(offsetYAnimation.value + offset)
+                    }
+                }) { velocity: Float, size: IntSize ->
+                    //check the limit if we need to drag to final position or not
+                    val targetOffset =
+                        splineDecay.calculateTargetValue(offsetYAnimation.value, velocity)
+                    Log.e(
+                        "TAG",
+                        "StackCard: ${offsetYAnimation.value} and ${targetOffset.absoluteValue}"
+                    )
+                    if (targetOffset.absoluteValue <= size.height / 3) {
+                        coroutineScope.launch {
+                            offsetYAnimation.animateTo(
+                                30f, animationSpec =
+                                FloatSpringSpec(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow,
+                                )
+                            )
+                        }
+                    } else {
+                        coroutineScope.launch {
+                            offsetYAnimation.animateTo(
+                                size.height.toFloat(), animationSpec =
+                                FloatSpringSpec(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow,
+                                )
+                            )
+                        }
+
+                    }
+                }
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
                     translationY = yOffset
-                }
-                .userDragAction {
-                    Log.e("MY TAG", "StackCard: ${offsetYAnimation.value - it}")
-                    coroutineScope.launch {
-                        offsetYAnimation.animateTo(offsetYAnimation.value + it)
-                    }
                 }
                 , color = color, index = index
             )
@@ -91,7 +126,10 @@ fun StackCard(colorList: List<Color>, size: Int) {
  */
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver", "UnnecessaryComposedModifier")
-fun Modifier.userDragAction(onUserDrag: (dragValue: Float) -> Unit): Modifier = composed {
+fun Modifier.userDragAction(
+    onUserDrag: (dragValue: Float) -> Unit,
+    onUserDragFinish: (velocity: Float, size: IntSize) -> Unit
+): Modifier = composed {
     val offsetY = remember {
         Animatable(30f)
     }
@@ -103,18 +141,20 @@ fun Modifier.userDragAction(onUserDrag: (dragValue: Float) -> Unit): Modifier = 
                 awaitPointerEventScope {
                     verticalDrag(this.awaitFirstDown().id) { change ->
                         val targetOffset = change.positionChange().y
+                        onUserDrag(targetOffset)
 
                         velocityTracker.addPosition(change.uptimeMillis, change.position)
                         if (change.positionChange() != Offset.Zero) change.consume()
 
-                        onUserDrag(targetOffset)
-
-                        val velocity = velocityTracker.calculateVelocity().y
-                        val targetOffsetY =
-                            splineDecay.calculateTargetValue(offsetY.value, velocity)
-
                     }
                 }
+
+                Log.e("TAG", "userDragAction: size $size")
+                val velocity = velocityTracker.calculateVelocity().y
+                onUserDragFinish(velocity, size)
+                val targetOffsetY =
+                    splineDecay.calculateTargetValue(offsetY.value, velocity)
+
             }
         }
     }
