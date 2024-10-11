@@ -49,7 +49,6 @@ fun StackCard(colorList: List<Color>, size: Int) {
     }
     val splineDecay = splineBasedDecay<Float>(LocalDensity.current) // Create a spline decay
 
-
     val coroutineScope = rememberCoroutineScope()
 
     Box(
