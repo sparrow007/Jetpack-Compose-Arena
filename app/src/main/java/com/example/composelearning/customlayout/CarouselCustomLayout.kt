@@ -140,7 +140,7 @@ private fun PreviewCarouse() {
                     itemFraction = .2f,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(400.dp)
                 ) { index ->
                     Box(
                         modifier = Modifier
