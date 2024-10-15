@@ -102,7 +102,7 @@ fun CarouselCustomLayout(
                 //   val angle = angleStep * index
                 val offset = getCoordinates(
                     width = availableHorizontalSpace / 2.0,
-                    height = (constraints.maxHeight / 2.0 - itemDimension) * state.minorAxisFactor,
+                    height = 0.0,
                     angle = itemAngle
                 )
 
