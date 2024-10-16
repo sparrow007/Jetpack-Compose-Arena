@@ -11,7 +11,6 @@ fun RotationCarouselCustomLayout(
     modifier: Modifier = Modifier,
     content: @Composable (index: Int) -> Unit
 ) {
-
     Layout(modifier = modifier, content = {
         repeat(numberOfItems) { index ->
             content(index)

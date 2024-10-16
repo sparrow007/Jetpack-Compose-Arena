@@ -2,25 +2,33 @@ package com.example.composelearning.customlayout
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FloatSpringSpec
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -28,10 +36,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.example.composelearning.R
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.PI
@@ -50,20 +60,18 @@ fun CarouselCustomLayout(
     require(numberOfItems > 0) { "Number of items should be greater than 0" }
     require(itemFraction in 0.0..0.5) { "Item fraction should be between 0 and 1" }
 
-    //Todo need measure the size of the child and measure the size of the parent
 
     Layout(modifier = modifier.dragCarousel(state), content = {
         val angleSteps = 360f / numberOfItems
         repeat(numberOfItems) { index ->
             val itemAngle = (state.angle + angleSteps * index).normalizeAngle()
             Box(modifier = Modifier
-                .fillMaxSize()
+                .wrapContentSize()
                 .zIndex(if (itemAngle <= 180f) 180f - itemAngle else itemAngle - 180f)
                 .graphicsLayer {
                     cameraDistance = 12f * density
                     rotationY = itemAngle
                     alpha = if (itemAngle < 90f || itemAngle > 270f) 1f else 0f
-
 
                     val scale = 1f - .2f * when {
                         itemAngle <= 180f -> itemAngle / 180f
@@ -131,6 +139,16 @@ private fun PreviewCarouse() {
             Color.Magenta,
             Color.Cyan,
         )
+        val listOfImages = listOf(
+            R.drawable.tom_vog,
+            R.drawable.alia_vog,
+            R.drawable.amrit_vog,
+            R.drawable.royal_vog,
+            R.drawable.hariy_vog,
+            R.drawable.cover_mag_sec,
+            R.drawable.cover_mag_th,
+            R.drawable.cover_mag_fo,
+        )
         Surface(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
@@ -143,19 +161,23 @@ private fun PreviewCarouse() {
                     itemFraction = .2f,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(300.dp)
+                        .height(370.dp)
                 ) { index ->
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = colors[index % colors.size]
-                            ),
+                            .size(300.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = index.toString(),
-                            color = Color.White,
+                        Image(
+                            modifier = Modifier
+                                .border(
+                                    border = BorderStroke(2.dp, Color.White),
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                                .clip(shape = RoundedCornerShape(12.dp)),
+                            painter = painterResource(
+                                id = listOfImages[index % listOfImages.size]
+                            ), contentDescription = "item List"
                         )
                     }
                 }
@@ -201,8 +223,8 @@ class CircularCarouselStateImpl : CircularCarouselState {
         get() = _angle.value
 
     private val decayAnimationSpec = FloatSpringSpec(
-        dampingRatio = Spring.DampingRatioNoBouncy,
-        stiffness = Spring.StiffnessLow
+        dampingRatio = Spring.DampingRatioLowBouncy,
+        stiffness = Spring.StiffnessMedium
     )
 
     override suspend fun stop() {
@@ -216,7 +238,7 @@ class CircularCarouselStateImpl : CircularCarouselState {
     override suspend fun decayTo(angle: Float, velocity: Float) {
         _angle.animateTo(
             targetValue = angle,
-            animationSpec = decayAnimationSpec,
+            animationSpec = tween(easing = LinearEasing, durationMillis = 500),
             initialVelocity = velocity
         )
     }
