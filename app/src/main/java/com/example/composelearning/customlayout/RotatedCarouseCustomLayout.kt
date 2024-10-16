@@ -12,7 +12,11 @@ fun RotationCarouselCustomLayout(
     content: @Composable (index: Int) -> Unit
 ) {
 
-    Layout(modifier = modifier, content = { /*TODO*/ }) { measurables, constraints ->
+    Layout(modifier = modifier, content = {
+        repeat(numberOfItems) { index ->
+            content(index)
+        }
+    }) { measurables, constraints ->
         //TODO
 
         layout(constraints.maxWidth, constraints.maxHeight) {

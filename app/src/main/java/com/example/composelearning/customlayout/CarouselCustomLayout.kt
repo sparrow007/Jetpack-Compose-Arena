@@ -62,7 +62,8 @@ fun CarouselCustomLayout(
                 .graphicsLayer {
                     cameraDistance = 12f * density
                     rotationY = itemAngle
-                    alpha = if (itemAngle < 90f || itemAngle > 270f) 1f else .6f
+                    alpha = if (itemAngle < 90f || itemAngle > 270f) 1f else 0f
+
 
                     val scale = 1f - .2f * when {
                         itemAngle <= 180f -> itemAngle / 180f
@@ -132,15 +133,17 @@ private fun PreviewCarouse() {
         )
         Surface(modifier = Modifier.fillMaxSize()) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Black),
                 contentAlignment = Alignment.Center,
             ) {
                 CarouselCustomLayout(
-                    numberOfItems = 24,
+                    numberOfItems = 15,
                     itemFraction = .2f,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(400.dp)
+                        .height(300.dp)
                 ) { index ->
                     Box(
                         modifier = Modifier
