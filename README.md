@@ -41,10 +41,13 @@ project from Android Studio following the steps
 </td>
             <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/carousel/cardstack/AdsCardShow.kt#L1">Card Stack Spin Animation</a>
 </td>
+         <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/customlayout/CarouselCustomLayout.kt#L1">Custom Layout Carousel Animation</a>
+</td>
         </tr>
        <tr>
            <td><p align = "center"> <img src="./preview/color_picker_animation-ezgif.com-video-to-gif-converter.gif" align="center"  width="230" height = "480"/></p></td>
             <td><p align="center"> <img src="./preview/stacked_card_spin.gif" align="center" width="230" height = "480"/> </p></td>
+           <td><p align="center"> <img src="./preview/custom_carousel_layout.gif" align="center" width="230" height = "480"/> </p></td>
         </tr>
   </table>
 
