@@ -41,7 +41,7 @@ project from Android Studio following the steps
 </td>
             <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/animation/carousel/cardstack/AdsCardShow.kt#L1">Card Stack Spin Animation</a>
 </td>
-         <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/bd6e948a595728a8a45ad2adfba5e82dcb957ed4/app/src/main/java/com/example/composelearning/customlayout/CarouselCustomLayout.kt#L1">Custom Layout Carousel Animation</a>
+         <td><a href="https://github.com/sparrow007/Jetpack-Compose-Arena/blob/c33a73bc14b184e8fc87ef7f6aee582cd6b5efe3/app/src/main/java/com/example/composelearning/customlayout/CarouselCustomLayout.kt#L1">Custom Layout Carousel Animation</a>
 </td>
         </tr>
        <tr>
