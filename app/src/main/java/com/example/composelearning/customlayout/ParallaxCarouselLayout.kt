@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LazyLayoutInfiniteScroll(
+    modifier: Modifier = Modifier,
 
 ) {
 
