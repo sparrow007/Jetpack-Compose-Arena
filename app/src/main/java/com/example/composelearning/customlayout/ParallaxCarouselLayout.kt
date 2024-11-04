@@ -26,11 +26,11 @@ fun SnapCarouselLayout(
         }
     }) { measurables, constraints ->
         val itemConstraints = Constraints.fixed(
-            width = constraints.maxWidth,
-            height = constraints.maxHeight
+            width = constraints.maxWidth / 2,
+            height = constraints.maxHeight / 2
         )
 
-        val placeables = measurables.map { it.measure(itemConstraints) }
+        val placeables = measurables.map { it.measure(constraints) }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             val centerX = constraints.maxWidth / 2
@@ -56,7 +56,7 @@ fun PreviewSnapCarouselLayout() {
     SnapCarouselLayout(numberOfItems = 3) { index ->
         Box(
             modifier = Modifier
-                .size(width = 200.dp, height = 100.dp)
+                .size(width = 200.dp, height = 200.dp)
                 .background(
                     color = when (index) {
                         0 -> Color.Red
