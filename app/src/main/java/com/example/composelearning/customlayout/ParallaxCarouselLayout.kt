@@ -4,16 +4,30 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.layout.LazyLayout
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -22,6 +36,8 @@ import com.example.composelearning.customlayout.lazylayout.CustomLazyListScope
 import com.example.composelearning.customlayout.lazylayout.LazyLayoutState
 import com.example.composelearning.customlayout.lazylayout.rememberItemProvider
 import com.example.composelearning.customlayout.lazylayout.rememberLazyLayoutState
+import viewmodel.Actions
+import viewmodel.State
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -48,13 +64,29 @@ fun LazyLayoutInfiniteScroll(
             indexsWithPlaceable.forEach { (index, placeable) ->
                 val item = itemProvider.getItem(index)
                 item?.let {
-
+                    placeItem(state, it, placeable)
                 }
             }
         }
     }
 
 
+}
+
+private fun Placeable.PlacementScope.placeItem(
+    state: LazyLayoutState,
+    listItem: ListItem,
+    placeables: List<Placeable>
+) {
+    val xPosition = listItem.x - state.offsetState.value.x
+    val yPosition = listItem.y - state.offsetState.value.y
+
+    placeables.forEach { placeable ->
+        placeable.placeRelative(
+            xPosition,
+            yPosition
+        )
+    }
 }
 
 
@@ -144,5 +176,45 @@ fun PreviewSnapCarouselLayout() {
                 )
                 .fillMaxSize()
         )
+    }
+}
+
+
+@Composable
+fun CustomLazyLayoutScreen(state: State, actions: Actions) {
+    val lazyLayoutState = rememberLazyLayoutState()
+    var showSettings by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+//        AnimatedVisibility(showSettings) {
+//            Settings(state = state, lazyLayoutState = lazyLayoutState, actions = actions)
+//        }
+
+        Button(
+            onClick = { showSettings = !showSettings },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Toggle settings")
+        }
+
+        LazyLayoutInfiniteScroll(
+            state = lazyLayoutState,
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            items(state.items) { item ->
+                Text(
+                    text = "X: ${item.x}\nY: ${item.y}",
+                    color = Color.White,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(12.dp)
+                )
+            }
+        }
     }
 }
