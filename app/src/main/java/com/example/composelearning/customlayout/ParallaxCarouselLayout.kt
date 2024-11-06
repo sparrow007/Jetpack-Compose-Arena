@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -210,6 +211,7 @@ fun CustomLazyLayoutScreen(state: State, actions: Actions) {
                     text = "X: ${item.x}\nY: ${item.y}",
                     color = Color.White,
                     modifier = Modifier
+                        .wrapContentSize()
                         .clip(RoundedCornerShape(24.dp))
                         .background(MaterialTheme.colorScheme.primary)
                         .padding(12.dp)
