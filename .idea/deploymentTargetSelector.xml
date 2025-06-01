@@ -8,9 +8,6 @@
       <SelectionState runConfigName="ShowVerticalCardStack">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="ShowRotationPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="SwipeableCards">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
