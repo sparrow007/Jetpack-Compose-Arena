@@ -6,6 +6,4 @@ fun main() {
     println(list.chunked(3))
 
     println(list.windowed(size = 3))
-
-
 }
