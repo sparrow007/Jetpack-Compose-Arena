@@ -65,8 +65,6 @@ fun AnimatedVisibilitySample() {
                 )
             }
         }
-
-
     }
 
 }
