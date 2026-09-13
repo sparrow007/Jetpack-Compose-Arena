@@ -10,7 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.composelearning.basic.AnimatedVisibilitySample
+import com.example.composelearning.basic.AnimateVisibilityViaAlpha
 import com.example.composelearning.ui.theme.ComposeLearningTheme
 import viewmodel.MainViewModel
 
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface() {
-                    AnimatedVisibilitySample()
+                    AnimateVisibilityViaAlpha()
                 }
             }
         }
